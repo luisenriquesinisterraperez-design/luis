@@ -1,0 +1,13 @@
+HTTP/1.1 302 Found
+Host: localhost:8765
+Date: Fri, 29 May 2026 19:11:40 GMT
+Connection: close
+X-Powered-By: PHP/8.2.12
+Set-Cookie: PHPSESSID=u90m32sr8vmtfses1bpmp28sp3; path=/; HttpOnly; SameSite=Lax
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+location: /users/login?redirect=%2Fdashboard%2Fsync-inventory
+X-DEBUGKIT-ID: 0f9f7f21-157a-43ea-ade1-177f28a2e12b
+Content-type: text/html; charset=UTF-8
+

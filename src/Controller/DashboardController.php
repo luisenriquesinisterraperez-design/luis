@@ -345,20 +345,11 @@ class DashboardController extends AppController
             $usageMap[(int)$row['ingredient_id']] = (float)$row['total_used'];
         }
 
-        // Valores iniciales conocidos de la migración
-        $initialStocks = [
-            'Llave Virgen Sencilla' => 100,
-            'Llave Virgen Seguridad' => 50,
-            'Cilindro Estándar 60mm' => 10,
-            'Chapa de Pomo Baño' => 5,
-            'Lubricante Grafito' => 12,
-        ];
-
         $report = [];
 
         foreach ($ingredients as $ingredient) {
             $totalUsed = $usageMap[(int)$ingredient->id] ?? 0;
-            $initialStock = $initialStocks[$ingredient->name] ?? (float)$ingredient->stock;
+            $initialStock = (float)$ingredient->stock + $totalUsed;
             $correctStock = $initialStock - $totalUsed;
             $diff = (float)$ingredient->stock - $correctStock;
 

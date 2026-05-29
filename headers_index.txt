@@ -1,0 +1,13 @@
+HTTP/1.1 302 Found
+Host: localhost:8765
+Date: Fri, 29 May 2026 19:11:41 GMT
+Connection: close
+X-Powered-By: PHP/8.2.12
+Set-Cookie: PHPSESSID=fg2g710n90t1ucc42cgdt23585; path=/; HttpOnly; SameSite=Lax
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+location: /users/login?redirect=%2F
+X-DEBUGKIT-ID: ddf0bd90-b0ce-4c2b-a3e4-282611d93be5
+Content-type: text/html; charset=UTF-8
+

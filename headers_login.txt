@@ -1,0 +1,18 @@
+HTTP/1.1 302 Found
+Host: localhost:8765
+Date: Fri, 29 May 2026 19:12:15 GMT
+Connection: close
+X-Powered-By: PHP/8.2.12
+Set-Cookie: PHPSESSID=38467iousd8kivgmhbo9ggilsa; path=/; HttpOnly; SameSite=Lax
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Content-Type: text/html; charset=UTF-8
+Location: http://localhost:8765/
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Referrer-Policy: same-origin
+Permissions-Policy: geolocation=(), microphone=(), camera=()
+X-DEBUGKIT-ID: b64550b8-aef3-45b3-86b4-9523d2d685e5
+

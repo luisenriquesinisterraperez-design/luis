@@ -1,0 +1,10 @@
+HTTP/1.1 302 Found
+Host: localhost:8765
+Date: Fri, 29 May 2026 19:13:04 GMT
+Connection: close
+X-Powered-By: PHP/8.2.12
+location: /users/login?redirect=%2Fdashboard%2Fsync-inventory
+X-DEBUGKIT-ID: fe071913-4c89-4cee-84c0-74470c3cd4e8
+Set-Cookie: csrfToken=P6ldFsijqWCytUi%2BdWQnzWU5NTk4ZGUzOTk0ZjJmMzQ0YmY2MTJiZmZkY2Y1NTJhNGVhMTVmNjM%3D; path=/; HttpOnly
+Content-type: text/html; charset=UTF-8
+

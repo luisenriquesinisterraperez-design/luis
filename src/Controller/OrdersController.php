@@ -19,12 +19,15 @@ class OrdersController extends AppController
 
         $query = $this->Orders->find()
             ->contain(['Products', 'DeliveryDrivers', 'OrderLogs'])
-            ->where(['Orders.payment_method !=' => 'Crédito'])
-            ->andWhere(['Orders.status !=' => 'cancelado']) // Exclude cancelled orders from default view
             ->orderBy([
                 'Orders.created' => 'DESC',
                 'Orders.id' => 'DESC'
             ]);
+
+        if (!$isAdmin) {
+            $query->where(['Orders.payment_method !=' => 'Crédito'])
+                  ->andWhere(['Orders.status !=' => 'cancelado']);
+        }
 
         if ($startDate) $query->where(['Orders.created >=' => $startDate . ' 00:00:00']);
         if ($endDate) $query->where(['Orders.created <=' => $endDate . ' 23:59:59']);

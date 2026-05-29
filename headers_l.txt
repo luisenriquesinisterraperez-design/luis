@@ -1,0 +1,14 @@
+HTTP/1.1 200 OK
+Host: localhost:8765
+Date: Fri, 29 May 2026 19:12:14 GMT
+Connection: close
+X-Powered-By: PHP/8.2.12
+Content-Type: text/html; charset=UTF-8
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Referrer-Policy: same-origin
+Permissions-Policy: geolocation=(), microphone=(), camera=()
+X-DEBUGKIT-ID: bce701a2-7dd2-496a-84c8-d7a2b2e23b4a
+Set-Cookie: csrfToken=nVtmwMT8%2BEgn%2FLv0y64qIjNjYzhjMjYwNDcwZWQzYmM3NGJkYjJlN2FjNDk5MmRmMTZjMDJmYWU%3D; path=/; HttpOnly
+

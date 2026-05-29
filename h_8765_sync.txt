@@ -1,0 +1,16 @@
+HTTP/1.1 200 OK
+Host: localhost:8765
+Date: Fri, 29 May 2026 19:13:18 GMT
+Connection: close
+X-Powered-By: PHP/8.2.12
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Content-Type: text/html; charset=UTF-8
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Referrer-Policy: same-origin
+Permissions-Policy: geolocation=(), microphone=(), camera=()
+X-DEBUGKIT-ID: e5015c69-5c85-4d96-8295-8531f875c53e
+
