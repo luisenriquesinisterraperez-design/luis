@@ -11,9 +11,7 @@ class ProductSalsasController extends AppController
             return $this->redirect(['controller' => 'Products', 'action' => 'index']);
         }
 
-        $product = $this->fetchTable('Products')->get($productId, [
-            'contain' => ['ProductSalsas'],
-        ]);
+        $product = $this->fetchTable('Products')->get($productId, contain: ['ProductSalsas']);
 
         if ($this->request->is('post')) {
             $salsa = $this->ProductSalsas->newEmptyEntity();
