@@ -337,7 +337,7 @@ $isRepartidor = ($user->role === 'repartidor');
             }
         );
 
-        // === AUTOCOMPLETADO DE ADICIONALES ===
+        // === BUSCADOR DE ADICIONALES (reemplaza autocomplete) ===
         let selectedAdicionales = [];
 
         function renderSelectedAdicionales() {
@@ -358,20 +358,61 @@ $isRepartidor = ($user->role === 'repartidor');
             });
         }
 
-        setupAutocomplete(
-            document.querySelector('[data-autocomplete="adicionales"]'),
-            adicionalesData.map(function(a) { return { label: a.name, id: a.id, price: a.price }; }),
-            function(item) {
-                if (item) {
-                    var exists = selectedAdicionales.some(function(ex) { return ex.id === item.id; });
-                    if (!exists) {
-                        selectedAdicionales.push({ id: item.id, name: item.label, price: item.price });
-                        renderSelectedAdicionales();
-                    }
-                    document.getElementById('adicional-search').value = '';
+        (function() {
+            var searchInput = document.getElementById('adicional-search');
+            var allAdicionales = adicionalesData.map(function(a) { return { id: a.id, name: a.name, price: a.price }; });
+
+            function buildPopup(filter) {
+                var q = (filter || '').toLowerCase().trim();
+                var filtered = allAdicionales;
+                if (q) {
+                    filtered = allAdicionales.filter(function(a) { return a.name.toLowerCase().includes(q); });
                 }
+                var popup = document.createElement('div');
+                popup.id = 'adicional-popup';
+                popup.style.cssText = 'position:absolute;top:100%;left:0;right:0;z-index:50;max-height:180px;overflow-y:auto;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.1);';
+                if (filtered.length === 0) {
+                    popup.innerHTML = '<div class="p-4 text-xs text-slate-400 text-center font-bold">Sin resultados</div>';
+                } else {
+                    var listHtml = '';
+                    filtered.forEach(function(a) {
+                        var already = selectedAdicionales.some(function(ex) { return ex.id === a.id; });
+                        listHtml += '<div class="px-4 py-2.5 cursor-pointer hover:bg-purple-50 border-b border-slate-100 flex items-center justify-between font-bold text-xs text-slate-700 ' + (already ? 'opacity-40 pointer-events-none' : '') + '" data-id="' + a.id + '" data-name="' + a.name.replace(/'/g, "\\'") + '" data-price="' + a.price + '">' +
+                            a.name +
+                            (a.price > 0 ? ' <span class="text-green-600">+$' + a.price + '</span>' : '') +
+                            (already ? ' <span class="text-purple-300 text-[8px]">✓</span>' : '') +
+                            '</div>';
+                    });
+                    popup.innerHTML = listHtml;
+                    popup.querySelectorAll('[data-id]').forEach(function(el) {
+                        el.addEventListener('click', function() {
+                            var id = parseInt(this.dataset.id);
+                            var name = this.dataset.name;
+                            var price = parseFloat(this.dataset.price);
+                            var exists = selectedAdicionales.some(function(e) { return e.id === id; });
+                            if (!exists) {
+                                selectedAdicionales.push({ id: id, name: name, price: price });
+                                renderSelectedAdicionales();
+                            }
+                            searchInput.value = '';
+                            buildPopup('');
+                        });
+                    });
+                }
+                var old = document.getElementById('adicional-popup');
+                if (old) old.remove();
+                searchInput.parentNode.appendChild(popup);
             }
-        );
+
+            searchInput.addEventListener('focus', function() { buildPopup(this.value); });
+            searchInput.addEventListener('input', function() { buildPopup(this.value); });
+            searchInput.addEventListener('blur', function() {
+                setTimeout(function() {
+                    var old = document.getElementById('adicional-popup');
+                    if (old) old.remove();
+                }, 200);
+            });
+        })();
 
         btnAdd.addEventListener('click', function() {
             const productId = prodIdHidden.value;
@@ -612,26 +653,25 @@ select.required-field.field-filled {
                                 <div class="flex items-center gap-2">
                                     <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-black"><?= $item->quantity ?>x</span>
                                     <span class="font-bold text-slate-700 text-xs"><?= $item->hasValue('product') ? h($item->product->name) : '---' ?></span>
-                                    <?php if (!empty($item->order_adicionales)): ?>
-                                        <div class="flex flex-wrap gap-1">
-                                            <?php foreach ($item->order_adicionales as $oa): ?>
-                                                <span class="bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded text-[7px] font-bold"><?= h($oa->name) ?></span>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </td>
-                    <td class="p-4">
-                        <div class="font-bold text-slate-700 text-xs"><?= h($mainOrder->customer_name) ?></div>
-                        <div class="text-[10px] text-slate-500 mt-0.5">
-                            <i class="fa-solid fa-phone text-[9px] mr-1"></i> <?= h($mainOrder->customer_phone) ?> 
-                            <?php if ($mainOrder->customer_address): ?>
-                                <br><span class="text-blue-500"><i class="fa-solid fa-map-marker-alt text-[9px] mr-1 mt-1"></i> <?= h($mainOrder->customer_address) ?></span>
-                            <?php endif; ?>
                             <?php if ($mainOrder->hasValue('delivery_driver')): ?>
                                 <br><span class="text-orange-600 font-bold"><i class="fa-solid fa-motorcycle text-[9px] mr-1 mt-1"></i> <?= h($mainOrder->delivery_driver->full_name) ?></span>
+                            <?php endif; ?>
+                            <?php 
+                            $allAdicionales = [];
+                            foreach ($group['items'] as $item) {
+                                if (!empty($item->order_adicionales)) {
+                                    foreach ($item->order_adicionales as $oa) {
+                                        $allAdicionales[] = $oa;
+                                    }
+                                }
+                            }
+                            if (!empty($allAdicionales)): ?>
+                                <br><span class="text-purple-600 font-bold mt-1 flex items-center gap-1"><i class="fa-solid fa-cubes text-[9px]"></i> Adicionales:</span>
+                                <div class="flex flex-wrap gap-1 mt-1">
+                                    <?php foreach ($allAdicionales as $oa): ?>
+                                        <span class="bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded text-[8px] font-bold"><?= h($oa->name) ?> ($<?= number_format((float)$oa->price, 0) ?>)</span>
+                                    <?php endforeach; ?>
+                                </div>
                             <?php endif; ?>
                         </div>
                     </td>
