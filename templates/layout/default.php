@@ -63,23 +63,26 @@
             gap: 12px;
             padding: 12px 20px;
             margin: 4px 16px;
-            color: #cbd5e1;
+            color: #e2e8f0;
             font-size: 0.875rem;
             font-weight: 700;
             border-radius: 12px;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            background: rgba(255,255,255,0.04);
+            background: #2a2a2a;
+            border: 1px solid #3a3a3a;
         }
 
         .nav-link:hover {
             color: #ffffff;
-            background: rgba(255,255,255,0.12);
+            background: #333333;
+            border-color: #dc2626;
         }
 
         .nav-link.active {
             color: #ffffff;
             background: #dc2626;
-            box-shadow: 0 10px 15px -3px rgba(220, 38, 38, 0.35);
+            border-color: #dc2626;
+            box-shadow: 0 8px 20px -4px rgba(220, 38, 38, 0.4);
         }
 
         .nav-link i {
