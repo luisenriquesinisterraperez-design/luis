@@ -178,8 +178,8 @@
         <aside class="sidebar">
             <div class="p-8 mb-4 bg-[#1e293b]/50">
                 <div class="flex items-center gap-4">
-                    <div class="bg-yellow-400 text-slate-900 w-12 h-12 flex items-center justify-center rounded-2xl shadow-lg shadow-yellow-400/20 transform -rotate-6">
-                        <i class="fa-solid fa-burger text-2xl"></i>
+                    <div class="w-12 h-12 flex items-center justify-center">
+                        <img src="<?= $this->Url->image('cake-logo.jpg') ?>" alt="DAVIRAPID" class="w-12 h-12 rounded-2xl shadow-lg shadow-yellow-400/20 object-cover">
                     </div>
                     <div>
                         <span class="font-black text-xl tracking-tighter text-white uppercase italic leading-none block">
@@ -261,9 +261,7 @@
             <!-- Mobile Header -->
             <header class="lg:hidden mobile-header flex justify-between items-center shadow-lg">
                 <div class="flex items-center gap-3">
-                    <div class="bg-yellow-400 text-slate-900 p-2 rounded-lg transform -rotate-3">
-                        <i class="fa-solid fa-burger text-sm"></i>
-                    </div>
+                    <img src="<?= $this->Url->image('cake-logo.jpg') ?>" alt="DAVIRAPID" class="w-8 h-8 rounded-lg object-cover">
                     <span class="font-black text-lg text-white uppercase italic tracking-tighter">DAVIRAPID<span class="text-yellow-400">.</span></span>
                 </div>
                 <button id="drawer-toggle" class="p-3 text-yellow-400 bg-neutral-800 rounded-lg">
@@ -329,9 +327,7 @@
         <main class="min-h-screen bg-dark flex items-center justify-center p-6">
             <div class="w-full max-w-sm">
                 <div class="text-center mb-10">
-                    <div class="bg-yellow-400 text-slate-900 w-24 h-24 flex items-center justify-center rounded-[2rem] mx-auto shadow-2xl mb-6" style="box-shadow: 0 25px 50px -12px rgba(250,204,21,0.3)">
-                        <i class="fa-solid fa-burger text-4xl"></i>
-                    </div>
+                    <img src="<?= $this->Url->image('cake-logo.jpg') ?>" alt="DAVIRAPID" class="w-24 h-24 rounded-[2rem] mx-auto shadow-2xl mb-6 object-cover" style="box-shadow: 0 25px 50px -12px rgba(250,204,21,0.3)">
                     <h1 class="text-5xl font-black text-white uppercase tracking-tight leading-none">DAVIRAPID</h1>
                     <p class="text-xs font-bold text-yellow-400 tracking-[0.3em] uppercase mt-3">Sistema de Gestión</p>
                 </div>
