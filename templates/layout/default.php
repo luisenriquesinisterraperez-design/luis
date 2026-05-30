@@ -200,6 +200,7 @@
                     ['Requests', 'index', 'fa-clock', 'Solicitudes', ($isAdmin || $isStaff)],
                     ['AccountsReceivable', 'index', 'fa-wallet', 'Mis Cuentas', true],
                     ['Products', $catalogAction, 'fa-store', 'Catálogo', true],
+                    ['Adicionales', 'index', 'fa-cubes', 'Adicionales', ($isAdmin || $isStaff)],
                     ['DailyClosures', 'index', 'fa-vault', 'Caja', ($isAdmin || $isStaff)],
                     ['Expenses', 'index', 'fa-coins', 'Gastos', ($isAdmin || $isStaff)],
                 ];
