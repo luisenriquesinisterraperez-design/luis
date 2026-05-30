@@ -137,16 +137,7 @@ foreach ($orders as $o) {
                 <?php foreach ($orders as $o): ?>
                 <tr>
                     <td><?= $o->quantity ?></td>
-                    <td>
-                        <?= h($o->product->name) ?>
-                        <?php if (!empty($o->order_product_salsas)): ?>
-                            <div style="font-size:9px;color:#555;">
-                                <?php foreach ($o->order_product_salsas as $ops): ?>
-                                    <div>+ <?= h($ops->name) ?> ($<?= number_format((float)$ops->price, 0) ?>)</div>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php endif; ?>
-                    </td>
+                    <td><?= h($o->product->name) ?></td>
                     <td class="text-right">$<?= number_format($o->total - $o->shipping_cost, 0) ?></td>
                 </tr>
                 <?php endforeach; ?>
