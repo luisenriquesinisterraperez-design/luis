@@ -3,7 +3,7 @@
 <head>
     <?= $this->Html->charset() ?>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SABOR EXPRESS - <?= $this->fetch('title') ?></title>
+    <title>DAVIRAPID - <?= $this->fetch('title') ?></title>
     <?= $this->Html->meta('icon') ?>
     
     <?= $this->Html->css('tailwind.css') ?>
@@ -168,7 +168,7 @@
                     </div>
                     <div>
                         <span class="font-black text-xl tracking-tighter text-white uppercase italic leading-none block">
-                            SABOR<span class="text-yellow-400">.</span>
+                            DAVIRAPID<span class="text-yellow-400">.</span>
                         </span>
                         <span class="text-[9px] font-black text-orange-400 tracking-[0.3em] uppercase">Comidas Rápidas</span>
                     </div>
@@ -249,7 +249,7 @@
                     <div class="bg-yellow-400 text-slate-900 p-2 rounded-lg transform -rotate-3">
                         <i class="fa-solid fa-burger text-sm"></i>
                     </div>
-                    <span class="font-black text-lg text-white uppercase italic tracking-tighter">SABOR<span class="text-yellow-400">.</span></span>
+                    <span class="font-black text-lg text-white uppercase italic tracking-tighter">DAVIRAPID<span class="text-yellow-400">.</span></span>
                 </div>
                 <button id="drawer-toggle" class="p-3 text-yellow-400 bg-neutral-800 rounded-lg">
                     <i class="fa-solid fa-bars-staggered text-xl"></i>
@@ -262,7 +262,7 @@
                 <div class="flex items-center gap-5">
                     <div class="w-1.5 h-12 bg-red-500 rounded-full"></div>
                         <div>
-                            <h2 class="text-[10px] font-black text-red-500 uppercase tracking-[0.4em] mb-1">Sabor Express</h2>
+                            <h2 class="text-[10px] font-black text-red-500 uppercase tracking-[0.4em] mb-1">DaviRapid</h2>
                             <h1 class="text-2xl md:text-3xl font-black text-slate-900 tracking-tight"><?= h($this->fetch('title')) ?></h1>
                         </div>
                     </div>
@@ -321,7 +321,7 @@
                     <div class="bg-yellow-400 text-slate-900 w-20 h-20 flex items-center justify-center rounded-[2.5rem] mx-auto shadow-2xl shadow-yellow-400/20 mb-8 transform -rotate-12 border-4 border-white">
                         <i class="fa-solid fa-burger text-3xl"></i>
                     </div>
-                    <h1 class="text-4xl font-black text-white uppercase italic tracking-tighter leading-none">SABOR<span class="text-yellow-400">.</span></h1>
+                    <h1 class="text-4xl font-black text-white uppercase italic tracking-tighter leading-none">DAVIRAPID<span class="text-yellow-400">.</span></h1>
                     <p class="text-[10px] font-black text-orange-400 tracking-[0.5em] uppercase mt-4">Comidas Rápidas</p>
                 </div>
                 <div class="bg-white p-3 rounded-[3rem] shadow-2xl shadow-black/50">
