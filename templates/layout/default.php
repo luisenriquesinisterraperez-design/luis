@@ -63,22 +63,23 @@
             gap: 12px;
             padding: 12px 20px;
             margin: 4px 16px;
-            color: #94a3b8;
+            color: #cbd5e1;
             font-size: 0.875rem;
-            font-weight: 600;
+            font-weight: 700;
             border-radius: 12px;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255,255,255,0.04);
         }
 
         .nav-link:hover {
             color: #ffffff;
-            background: #1e293b;
+            background: rgba(255,255,255,0.12);
         }
 
         .nav-link.active {
             color: #ffffff;
-            background: #ef4444; /* Red Active */
-            box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3);
+            background: #dc2626;
+            box-shadow: 0 10px 15px -3px rgba(220, 38, 38, 0.35);
         }
 
         .nav-link i {
