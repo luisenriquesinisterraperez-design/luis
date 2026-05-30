@@ -337,7 +337,7 @@ $isRepartidor = ($user->role === 'repartidor');
             }
         );
 
-        // === BUSCADOR DE ADICIONALES (reemplaza autocomplete) ===
+        // === SELECCIÓN DE ADICIONALES (checkboxes con buscador) ===
         let selectedAdicionales = [];
 
         function renderSelectedAdicionales() {
@@ -360,57 +360,51 @@ $isRepartidor = ($user->role === 'repartidor');
 
         (function() {
             var searchInput = document.getElementById('adicional-search');
-            var allAdicionales = adicionalesData.map(function(a) { return { id: a.id, name: a.name, price: a.price }; });
+            if (!searchInput) return;
+            if (!adicionalesData || adicionalesData.length === 0) return;
 
-            function buildPopup(filter) {
+            var allAdicionales = adicionalesData.map(function(a) { return { id: a.id, name: a.name, price: a.price }; });
+            var picker = document.createElement('div');
+            picker.className = 'mt-2 border border-purple-200 rounded-xl max-h-36 overflow-y-auto bg-white divide-y divide-slate-100';
+
+            function renderPicker(filter) {
                 var q = (filter || '').toLowerCase().trim();
                 var filtered = allAdicionales;
                 if (q) {
                     filtered = allAdicionales.filter(function(a) { return a.name.toLowerCase().includes(q); });
                 }
-                var popup = document.createElement('div');
-                popup.id = 'adicional-popup';
-                popup.style.cssText = 'position:absolute;top:100%;left:0;right:0;z-index:50;max-height:180px;overflow-y:auto;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-top:4px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.1);';
+                picker.innerHTML = '';
                 if (filtered.length === 0) {
-                    popup.innerHTML = '<div class="p-4 text-xs text-slate-400 text-center font-bold">Sin resultados</div>';
+                    picker.innerHTML = '<div class="p-3 text-xs text-slate-400 text-center font-bold">Sin resultados</div>';
                 } else {
-                    var listHtml = '';
                     filtered.forEach(function(a) {
                         var already = selectedAdicionales.some(function(ex) { return ex.id === a.id; });
-                        listHtml += '<div class="px-4 py-2.5 cursor-pointer hover:bg-purple-50 border-b border-slate-100 flex items-center justify-between font-bold text-xs text-slate-700 ' + (already ? 'opacity-40 pointer-events-none' : '') + '" data-id="' + a.id + '" data-name="' + a.name.replace(/'/g, "\\'") + '" data-price="' + a.price + '">' +
-                            a.name +
-                            (a.price > 0 ? ' <span class="text-green-600">+$' + a.price + '</span>' : '') +
-                            (already ? ' <span class="text-purple-300 text-[8px]">✓</span>' : '') +
-                            '</div>';
-                    });
-                    popup.innerHTML = listHtml;
-                    popup.querySelectorAll('[data-id]').forEach(function(el) {
-                        el.addEventListener('click', function() {
-                            var id = parseInt(this.dataset.id);
-                            var name = this.dataset.name;
-                            var price = parseFloat(this.dataset.price);
-                            var exists = selectedAdicionales.some(function(e) { return e.id === id; });
-                            if (!exists) {
-                                selectedAdicionales.push({ id: id, name: name, price: price });
+                        var div = document.createElement('div');
+                        div.className = 'px-3 py-2 flex items-center gap-2 cursor-pointer hover:bg-purple-50 text-xs font-bold ' + (already ? 'text-purple-300' : 'text-slate-700');
+                        div.innerHTML = (already ? '<i class="fa-regular fa-circle-check text-purple-400"></i>' : '<i class="fa-regular fa-circle text-slate-300"></i>') +
+                            ' ' + a.name +
+                            (a.price > 0 ? ' <span class="text-green-600 ml-auto">+$' + a.price + '</span>' : '');
+                        if (!already) {
+                            div.addEventListener('click', function() {
+                                selectedAdicionales.push({ id: a.id, name: a.name, price: a.price });
                                 renderSelectedAdicionales();
-                            }
-                            searchInput.value = '';
-                            buildPopup('');
-                        });
+                                renderPicker('');
+                                searchInput.value = '';
+                            });
+                        }
+                        picker.appendChild(div);
                     });
                 }
-                var old = document.getElementById('adicional-popup');
-                if (old) old.remove();
-                searchInput.parentNode.appendChild(popup);
             }
 
-            searchInput.addEventListener('focus', function() { buildPopup(this.value); });
-            searchInput.addEventListener('input', function() { buildPopup(this.value); });
-            searchInput.addEventListener('blur', function() {
-                setTimeout(function() {
-                    var old = document.getElementById('adicional-popup');
-                    if (old) old.remove();
-                }, 200);
+            searchInput.parentNode.appendChild(picker);
+            renderPicker('');
+
+            searchInput.addEventListener('input', function() {
+                renderPicker(this.value);
+            });
+            searchInput.addEventListener('focus', function() {
+                renderPicker(this.value);
             });
         })();
 
