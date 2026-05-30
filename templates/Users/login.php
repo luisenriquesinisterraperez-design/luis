@@ -3,59 +3,62 @@
  * @var \App\View\AppView $this
  */
 ?>
-<div class="fixed inset-0 z-[100] bg-[#1a1a1a] flex items-center justify-center p-6">
-    <!-- Fondo decorativo suave -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-red-600/20 rounded-full blur-[100px]"></div>
-        <div class="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] bg-orange-400/10 rounded-full blur-[100px]"></div>
-    </div>
+<div class="min-h-screen bg-[#1a1a1a] flex items-center justify-center p-6 relative overflow-hidden">
+    <!-- Línea superior roja -->
+    <div class="absolute top-0 left-0 w-full h-1.5 bg-red-600"></div>
 
-    <div class="relative w-full max-w-sm">
+    <div class="w-full max-w-sm relative">
+        <!-- Logo y marca -->
         <div class="text-center mb-10">
-            <div class="bg-yellow-400 text-slate-900 w-20 h-20 flex items-center justify-center rounded-[2.5rem] mx-auto shadow-2xl shadow-yellow-400/20 mb-8 transform -rotate-12 border-4 border-white">
+            <div class="bg-yellow-400 text-slate-900 w-20 h-20 flex items-center justify-center rounded-2xl mx-auto shadow-2xl shadow-yellow-400/30 mb-6 transform -rotate-6">
                 <i class="fa-solid fa-burger text-3xl"></i>
             </div>
-            <h1 class="text-4xl font-black text-white uppercase italic tracking-tighter leading-none">DAVIRAPID<span class="text-yellow-400">.</span></h1>
-            <p class="text-[10px] font-black text-orange-400 tracking-[0.5em] uppercase mt-4">Comidas Rápidas</p>
+            <h1 class="text-4xl font-black text-white uppercase tracking-tight leading-none">DAVIRAPID<span class="text-yellow-400">.</span></h1>
+            <p class="text-[10px] font-bold text-red-400 tracking-[0.4em] uppercase mt-3">Sistema de Gestión</p>
         </div>
 
-        <div class="bg-white p-2 rounded-[3rem] shadow-2xl shadow-black/50 border border-slate-800">
+        <!-- Tarjeta blanca -->
+        <div class="bg-white rounded-2xl shadow-2xl shadow-black/40 overflow-hidden">
+            <div class="h-1 bg-gradient-to-r from-red-600 via-yellow-400 to-red-600"></div>
             <div class="p-8">
                 <?= $this->Flash->render() ?>
 
                 <?= $this->Form->create() ?>
                 <div class="space-y-5">
                     <div>
-                        <label class="text-[10px] font-black text-slate-400 uppercase ml-2 mb-2 block tracking-widest">Acceso Seguro</label>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-2 block tracking-wider">Usuario</label>
                         <div class="relative">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300">
                                 <i class="fa-solid fa-user"></i>
                             </span>
                             <?= $this->Form->control('username', [
                                 'label' => false,
-                                'placeholder' => 'Usuario',
-                                'class' => 'w-full pl-12 p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all text-slate-700 font-bold',
+                                'placeholder' => 'Ingrese su usuario',
+                                'class' => 'w-full pl-11 p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all text-slate-700 font-bold text-sm',
                                 'required' => true
                             ]) ?>
                         </div>
                     </div>
 
-                    <div class="relative">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300">
-                            <i class="fa-solid fa-lock"></i>
-                        </span>
-                        <?= $this->Form->control('password', [
-                            'label' => false,
-                            'placeholder' => 'Contraseña',
-                            'class' => 'w-full pl-12 p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all text-slate-700 font-bold',
-                            'required' => true,
-                            'type' => 'password'
-                        ]) ?>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-2 block tracking-wider">Contraseña</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300">
+                                <i class="fa-solid fa-lock"></i>
+                            </span>
+                            <?= $this->Form->control('password', [
+                                'label' => false,
+                                'placeholder' => 'Ingrese su contraseña',
+                                'class' => 'w-full pl-11 p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all text-slate-700 font-bold text-sm',
+                                'required' => true,
+                                'type' => 'password'
+                            ]) ?>
+                        </div>
                     </div>
 
-                    <div class="pt-4">
-                        <?= $this->Form->button(__('ENTRAR AL SISTEMA'), [
-                            'class' => 'w-full bg-red-600 text-white py-4 rounded-2xl font-black hover:bg-yellow-400 hover:text-slate-900 shadow-xl shadow-red-600/20 active:scale-[0.98] transition-all uppercase tracking-widest text-xs'
+                    <div class="pt-2">
+                        <?= $this->Form->button(__('ENTRAR'), [
+                            'class' => 'w-full bg-red-600 text-white py-4 rounded-xl font-black hover:bg-yellow-400 hover:text-slate-900 shadow-lg shadow-red-600/30 active:scale-[0.98] transition-all uppercase tracking-widest text-sm'
                         ]) ?>
                     </div>
                 </div>
@@ -63,8 +66,8 @@
             </div>
         </div>
 
-        <div class="text-center mt-10">
-            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">© <?= date('Y') ?> DAVIRAPID PRO Edition</p>
+        <div class="text-center mt-8">
+            <p class="text-[9px] text-slate-600 font-bold uppercase tracking-widest">© <?= date('Y') ?> DAVIRAPID</p>
         </div>
     </div>
 </div>
