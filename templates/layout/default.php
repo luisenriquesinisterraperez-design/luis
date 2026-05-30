@@ -316,24 +316,22 @@
     <?php else: ?>
         <!-- Login Layout -->
         <main class="min-h-screen bg-[#1a1a1a] flex items-center justify-center p-6">
-            <div class="absolute top-0 left-0 w-full h-1.5 bg-red-600"></div>
             <div class="w-full max-w-sm">
                 <div class="text-center mb-10">
-                    <div class="bg-yellow-400 text-slate-900 w-20 h-20 flex items-center justify-center rounded-2xl mx-auto shadow-2xl shadow-yellow-400/30 mb-6 transform -rotate-6">
-                        <i class="fa-solid fa-burger text-3xl"></i>
+                    <div class="bg-yellow-400 text-slate-900 w-24 h-24 flex items-center justify-center rounded-[2rem] mx-auto shadow-2xl shadow-yellow-400/30 mb-6">
+                        <i class="fa-solid fa-burger text-4xl"></i>
                     </div>
-                    <h1 class="text-4xl font-black text-white uppercase tracking-tight leading-none">DAVIRAPID<span class="text-yellow-400">.</span></h1>
-                    <p class="text-[10px] font-bold text-red-400 tracking-[0.4em] uppercase mt-3">Sistema de Gestión</p>
+                    <h1 class="text-5xl font-black text-white uppercase tracking-tight leading-none">DAVIRAPID</h1>
+                    <p class="text-xs font-bold text-yellow-400 tracking-[0.3em] uppercase mt-3">Sistema de Gestión</p>
                 </div>
-                <div class="bg-white rounded-2xl shadow-2xl shadow-black/40 overflow-hidden">
-                    <div class="h-1 bg-gradient-to-r from-red-600 via-yellow-400 to-red-600"></div>
-                    <div class="p-8">
+                <div class="bg-white rounded-3xl shadow-[0_20px_60px_-12px_rgba(0,0,0,0.5)] overflow-hidden">
+                    <div class="p-8 pt-10">
                         <?= $this->Flash->render() ?>
                         <?= $this->fetch('content') ?>
                     </div>
                 </div>
                 <div class="text-center mt-8">
-                    <p class="text-[9px] text-slate-600 font-bold uppercase tracking-widest">© 2026 DAVIRAPID</p>
+                    <p class="text-[10px] text-slate-600 font-bold tracking-widest">© 2026 DAVIRAPID</p>
                 </div>
             </div>
         </main>
