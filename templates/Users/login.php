@@ -12,7 +12,7 @@
         <p class="text-slate-900 font-black text-xs uppercase tracking-[0.2em] text-center">Acceso al Sistema</p>
     </div>
 
-    <div class="flex items-center bg-white border-2 border-slate-200 rounded-2xl focus-within:border-yellow-400 transition-all">
+    <div class="flex items-center bg-white border-2 border-slate-200 rounded-2xl focus-within-border-yellow transition-all">
         <span class="pl-5 pr-3 text-yellow-500">
             <i class="fa-solid fa-user text-lg"></i>
         </span>
@@ -23,7 +23,7 @@
         ]) ?>
     </div>
 
-    <div class="flex items-center bg-white border-2 border-slate-200 rounded-2xl focus-within:border-yellow-400 transition-all">
+    <div class="flex items-center bg-white border-2 border-slate-200 rounded-2xl focus-within-border-yellow transition-all">
         <span class="pl-5 pr-3 text-yellow-500">
             <i class="fa-solid fa-lock text-lg"></i>
         </span>
@@ -36,7 +36,7 @@
 
     <div class="pt-2">
         <?= $this->Form->button('INGRESAR', [
-            'class' => 'w-full bg-red-600 text-white py-4 rounded-2xl font-black text-sm hover:bg-yellow-400 hover:text-slate-900 shadow-lg active:scale-[0.98] transition-all uppercase tracking-[0.3em]'
+            'class' => 'w-full bg-red-600 text-white py-4 rounded-2xl font-black text-sm hover-bg-yellow-400 hover-text-slate-900 shadow-lg active-scale-98 transition-all uppercase tracking-[0.3em]'
         ]) ?>
     </div>
 </div>

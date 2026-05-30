@@ -148,6 +148,17 @@
         .card-blue { border-color: #2563eb; }
         .card-red { border-color: #ef4444; }
         .card-black { border-color: #0f172a; }
+
+        /* Missing Tailwind utilities (not in compiled tailwind.css) */
+        .bg-dark { background: #1a1a1a !important; }
+        .bg-gradient-red-orange { background: linear-gradient(to right, #dc2626, #ea580c) !important; }
+        .shadow-premium { box-shadow: 0 20px 60px -12px rgba(0,0,0,0.5) !important; }
+        .shadow-red-200 { box-shadow: 0 4px 6px -1px rgba(254,202,202,0.5) !important; }
+        .shadow-yellow-400\/30 { box-shadow: 0 25px 50px -12px rgba(250,204,21,0.3) !important; }
+        .focus-within-border-yellow:focus-within { border-color: #facc15 !important; }
+        .hover-bg-yellow-400:hover { background: #facc15 !important; }
+        .hover-text-slate-900:hover { color: #0f172a !important; }
+        .active-scale-98:active { transform: scale(0.98) !important; }
     </style>
 </head>
 <body class="h-full overflow-x-hidden">
@@ -270,7 +281,7 @@
                         <h1 class="text-lg md:text-3xl font-black text-slate-900 tracking-tight truncate"><?= h($this->fetch('title')) ?></h1>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 md:gap-3 bg-gradient-to-r from-red-600 to-orange-500 px-3 md:px-5 py-2 md:py-2.5 rounded-2xl shadow-lg shadow-red-200 border border-red-400 shrink-0">
+                <div class="flex items-center gap-2 md:gap-3 bg-gradient-red-orange px-3 md:px-5 py-2 md:py-2.5 rounded-2xl shadow-lg shadow-red-200 border border-red-400 shrink-0">
                     <i class="fa-solid fa-clock text-white/90 text-xs md:text-sm"></i>
                     <span class="text-[10px] md:text-xs font-bold text-white tracking-wide" id="live-clock"></span>
                 </div>
@@ -283,7 +294,7 @@
 
     <!-- Mobile Drawer -->
     <div id="drawer-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[90] opacity-0 pointer-events-none transition-opacity"></div>
-    <div id="mobile-drawer" class="fixed inset-y-0 left-0 w-80 bg-[#1a1a1a] z-[100] transform -translate-x-full transition-transform ease-in-out duration-300 shadow-2xl flex flex-col border-r-4 border-red-500">
+    <div id="mobile-drawer" class="fixed inset-y-0 left-0 w-80 bg-dark z-[100] transform -translate-x-full transition-transform ease-in-out duration-300 shadow-2xl flex flex-col border-r-4 border-red-500">
         <div class="p-8 border-b border-slate-800 flex justify-between items-center bg-[#1e293b]/50">
             <span class="font-black text-yellow-400 uppercase text-xs tracking-widest">Navegación Pro</span>
             <button id="drawer-close" class="text-white"><i class="fa-solid fa-xmark text-2xl"></i></button>
@@ -315,16 +326,16 @@
 
     <?php else: ?>
         <!-- Login Layout -->
-        <main class="min-h-screen bg-[#1a1a1a] flex items-center justify-center p-6">
+        <main class="min-h-screen bg-dark flex items-center justify-center p-6">
             <div class="w-full max-w-sm">
                 <div class="text-center mb-10">
-                    <div class="bg-yellow-400 text-slate-900 w-24 h-24 flex items-center justify-center rounded-[2rem] mx-auto shadow-2xl shadow-yellow-400/30 mb-6">
+                    <div class="bg-yellow-400 text-slate-900 w-24 h-24 flex items-center justify-center rounded-[2rem] mx-auto shadow-2xl mb-6" style="box-shadow: 0 25px 50px -12px rgba(250,204,21,0.3)">
                         <i class="fa-solid fa-burger text-4xl"></i>
                     </div>
                     <h1 class="text-5xl font-black text-white uppercase tracking-tight leading-none">DAVIRAPID</h1>
                     <p class="text-xs font-bold text-yellow-400 tracking-[0.3em] uppercase mt-3">Sistema de Gestión</p>
                 </div>
-                <div class="bg-white rounded-3xl shadow-[0_20px_60px_-12px_rgba(0,0,0,0.5)] overflow-hidden border border-red-100">
+                <div class="bg-white rounded-3xl shadow-premium overflow-hidden border border-red-100">
                     <div class="p-8 pt-10">
                         <?= $this->Flash->render() ?>
                         <?= $this->fetch('content') ?>
