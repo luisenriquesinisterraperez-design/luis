@@ -42,7 +42,7 @@ class OrdersTable extends Table
             'foreignKey' => 'order_id',
             'dependent' => false,
         ]);
-        $this->hasMany('OrderProductSalsas', [
+        $this->hasMany('OrderAdicionales', [
             'foreignKey' => 'order_id',
             'dependent' => true,
         ]);
@@ -104,16 +104,16 @@ class OrdersTable extends Table
         if ($entity->isNew() || $entity->isDirty('product_id') || $entity->isDirty('quantity') || $entity->isDirty('shipping_cost')) {
             try {
                 $product = $this->Products->get($entity->product_id);
-                $salsaTotal = 0;
-                $salsaIds = $options['salsa_ids'] ?? [];
-                if (!empty($salsaIds)) {
-                    $salsasTable = $this->getTableLocator()->get('ProductSalsas');
-                    $salsas = $salsasTable->find()->where(['id IN' => $salsaIds])->all();
-                    foreach ($salsas as $s) {
-                        $salsaTotal += (float)$s->price * $entity->quantity;
+                $adicionalTotal = 0;
+                $adicionalIds = $options['adicional_ids'] ?? [];
+                if (!empty($adicionalIds)) {
+                    $adicionalesTable = $this->getTableLocator()->get('Adicionales');
+                    $adicionales = $adicionalesTable->find()->where(['id IN' => $adicionalIds])->all();
+                    foreach ($adicionales as $a) {
+                        $adicionalTotal += (float)$a->price * $entity->quantity;
                     }
                 }
-                $entity->total = ($product->price * $entity->quantity) + $salsaTotal + (float)($entity->shipping_cost ?? 0);
+                $entity->total = ($product->price * $entity->quantity) + $adicionalTotal + (float)($entity->shipping_cost ?? 0);
             } catch (Exception $e) {
                 Log::error('Error calculando total para pedido: ' . $e->getMessage());
             }
@@ -178,25 +178,25 @@ class OrdersTable extends Table
 
     public function afterSave(EventInterface $event, EntityInterface $entity, ArrayObject $options): void
     {
-        // Guardar salsas seleccionadas
-        $salsaIds = $options['salsa_ids'] ?? [];
-        if (!empty($salsaIds)) {
-            $opsTable = $this->getTableLocator()->get('OrderProductSalsas');
-            $salsasTable = $this->getTableLocator()->get('ProductSalsas');
+        // Guardar adicionales seleccionados
+        $adicionalIds = $options['adicional_ids'] ?? [];
+        if (!empty($adicionalIds)) {
+            $oaTable = $this->getTableLocator()->get('OrderAdicionales');
+            $adicionalesTable = $this->getTableLocator()->get('Adicionales');
 
             if (!$entity->isNew()) {
-                $opsTable->deleteAll(['order_id' => $entity->id]);
+                $oaTable->deleteAll(['order_id' => $entity->id]);
             }
 
-            $salsas = $salsasTable->find()->where(['id IN' => $salsaIds])->all();
-            foreach ($salsas as $s) {
-                $ops = $opsTable->newEntity([
+            $adicionales = $adicionalesTable->find()->where(['id IN' => $adicionalIds])->all();
+            foreach ($adicionales as $a) {
+                $oa = $oaTable->newEntity([
                     'order_id' => $entity->id,
-                    'product_salsa_id' => $s->id,
-                    'name' => $s->name,
-                    'price' => $s->price,
+                    'adicional_id' => $a->id,
+                    'name' => $a->name,
+                    'price' => $a->price,
                 ]);
-                $opsTable->save($ops);
+                $oaTable->save($oa);
             }
         }
 

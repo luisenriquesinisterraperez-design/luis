@@ -123,10 +123,10 @@ $branch = $order->branch;
                     <td><?= $order->quantity ?></td>
                     <td>
                         <?= h($order->product->name) ?>
-                        <?php if (!empty($order->order_product_salsas)): ?>
+                        <?php if (!empty($order->order_adicionales)): ?>
                             <div style="font-size:9px;color:#555;">
-                                <?php foreach ($order->order_product_salsas as $ops): ?>
-                                    <div>+ <?= h($ops->name) ?> ($<?= number_format((float)$ops->price, 0) ?>)</div>
+                                <?php foreach ($order->order_adicionales as $oa): ?>
+                                    <div>+ <?= h($oa->name) ?> ($<?= number_format((float)$oa->price, 0) ?>)</div>
                                 <?php endforeach; ?>
                             </div>
                         <?php endif; ?>

@@ -87,13 +87,21 @@ $isRepartidor = ($user->role === 'repartidor');
                         <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Cantidad</label>
                         <?= $this->Form->number('temp_quantity', ['id' => 'cart-quantity', 'class' => 'w-full p-4 bg-white border rounded-2xl outline-none text-center font-bold text-slate-700 focus:ring-2 focus:ring-blue-500', 'value' => 1, 'min' => 1]) ?>
                     </div>
-                    <div class="md:col-span-5">
-                        <div id="salsa-checkboxes" class="mb-3 bg-white rounded-xl border border-slate-200 p-3 hidden">
-                            <label class="text-[8px] font-black uppercase text-slate-400 block mb-2">Extras / Salsas</label>
-                            <div id="salsa-list" class="flex flex-wrap gap-3"></div>
+                    <div class="md:col-span-3">
+                        <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Adicionales</label>
+                        <div class="relative autocomplete-wrap" data-autocomplete="adicionales">
+                            <input type="text" id="adicional-search"
+                                placeholder="Buscar adicional..."
+                                class="w-full p-4 bg-white border rounded-2xl outline-none font-bold text-slate-700 focus:ring-2 focus:ring-blue-500 autocomplete-input"
+                                autocomplete="off">
+                            <i class="fa-solid fa-chevron-down absolute right-4 bottom-5 text-slate-300 pointer-events-none"></i>
+                            <ul class="autocomplete-dropdown hidden"></ul>
                         </div>
+                        <div id="selected-adicionales" class="mt-2 flex flex-wrap gap-1"></div>
+                    </div>
+                    <div class="md:col-span-2">
                         <button type="button" id="btn-add-to-cart" class="w-full bg-blue-600 text-white font-black rounded-2xl py-4 uppercase shadow-lg hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-plus-circle"></i> AGREGAR AL PEDIDO
+                            <i class="fa-solid fa-plus-circle"></i> AGREGAR
                         </button>
                     </div>
                 </div>
@@ -168,7 +176,7 @@ $isRepartidor = ($user->role === 'repartidor');
         // Datos para autocompletado
         const clientsData = <?= json_encode($clients) ?>;
         const productsData = <?= json_encode($products) ?>;
-        const productSalsasData = <?= json_encode($productSalsas ?? []) ?>;
+        const adicionalesData = <?= json_encode($adicionales ?? []) ?>;
         let cartItems = [];
 
         function renderCart() {
@@ -187,20 +195,20 @@ $isRepartidor = ($user->role === 'repartidor');
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 transition-colors';
 
-                let salsasHtml = '';
-                if (item.salsas && item.salsas.length > 0) {
-                    salsasHtml = '<div class="flex flex-wrap gap-1 mt-1">';
-                    item.salsas.forEach(s => {
-                        salsasHtml += `<span class="bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded text-[8px] font-bold">${s.name}${s.price > 0 ? ' (+$' + s.price + ')' : ''}</span>`;
-                        salsasHtml += `<input type="hidden" name="items[${index}][salsa_ids][]" value="${s.id}">`;
-                    });
-                    salsasHtml += '</div>';
-                }
+                let adicionalesHtml = '';
+                    if (item.adicionales && item.adicionales.length > 0) {
+                        adicionalesHtml = '<div class="flex flex-wrap gap-1 mt-1">';
+                        item.adicionales.forEach(a => {
+                            adicionalesHtml += `<span class="bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded text-[8px] font-bold">${a.name}${a.price > 0 ? ' (+$' + a.price + ')' : ''}</span>`;
+                            adicionalesHtml += `<input type="hidden" name="items[${index}][adicional_ids][]" value="${a.id}">`;
+                        });
+                        adicionalesHtml += '</div>';
+                    }
 
                 tr.innerHTML = `
                     <td class="p-4 font-bold text-slate-700 text-sm">
                         ${item.productName}
-                        ${salsasHtml}
+                        ${adicionalesHtml}
                         <input type="hidden" name="items[${index}][product_id]" value="${item.productId}">
                         <input type="hidden" name="items[${index}][quantity]" value="${item.quantity}">
                     </td>
@@ -326,32 +334,44 @@ $isRepartidor = ($user->role === 'repartidor');
             Object.entries(productsData).map(([id, name]) => ({ label: name, id: id })),
             function(item) {
                 prodIdHidden.value = item ? item.id : '';
-                showSalsasForProduct(item ? item.id : null);
             }
         );
 
-        function showSalsasForProduct(productId) {
-            const container = document.getElementById('salsa-checkboxes');
-            const list = document.getElementById('salsa-list');
+        // === AUTOCOMPLETADO DE ADICIONALES ===
+        let selectedAdicionales = [];
 
-            if (!productId || !productSalsasData[productId] || productSalsasData[productId].length === 0) {
-                container.classList.add('hidden');
-                return;
-            }
-
-            const salsas = productSalsasData[productId];
-            list.innerHTML = '';
-            salsas.forEach(s => {
-                list.innerHTML += `
-                    <label class="flex items-center gap-1.5 text-[10px] font-bold text-slate-700 cursor-pointer bg-slate-50 hover:bg-orange-50 border border-slate-200 rounded-lg px-3 py-1.5 transition-colors">
-                        <input type="checkbox" class="salsa-checkbox" data-salsa-id="${s.id}" data-salsa-name="${s.name}" data-salsa-price="${s.price}">
-                        ${s.name}
-                        ${s.price > 0 ? '<span class="text-green-600">+$' + s.price + '</span>' : '<span class="text-slate-400">Gratis</span>'}
-                    </label>
-                `;
+        function renderSelectedAdicionales() {
+            const container = document.getElementById('selected-adicionales');
+            container.innerHTML = '';
+            selectedAdicionales.forEach(function(a, idx) {
+                container.innerHTML +=
+                    '<span class="bg-purple-100 text-purple-700 px-2 py-1 rounded-lg text-[9px] font-bold flex items-center gap-1">' +
+                    a.name + (a.price > 0 ? ' <span class="text-green-600">+$' + a.price + '</span>' : '') +
+                    ' <button type="button" class="text-purple-400 hover:text-red-500 remove-adicional ml-1" data-idx="' + idx + '">✕</button></span>';
             });
-            container.classList.remove('hidden');
+            document.querySelectorAll('.remove-adicional').forEach(function(btn) {
+                btn.onclick = function() {
+                    var idx = parseInt(this.dataset.idx);
+                    selectedAdicionales.splice(idx, 1);
+                    renderSelectedAdicionales();
+                };
+            });
         }
+
+        setupAutocomplete(
+            document.querySelector('[data-autocomplete="adicionales"]'),
+            adicionalesData.map(function(a) { return { label: a.name, id: a.id, price: a.price }; }),
+            function(item) {
+                if (item) {
+                    var exists = selectedAdicionales.some(function(ex) { return ex.id === item.id; });
+                    if (!exists) {
+                        selectedAdicionales.push({ id: item.id, name: item.label, price: item.price });
+                        renderSelectedAdicionales();
+                    }
+                    document.getElementById('adicional-search').value = '';
+                }
+            }
+        );
 
         btnAdd.addEventListener('click', function() {
             const productId = prodIdHidden.value;
@@ -365,21 +385,14 @@ $isRepartidor = ($user->role === 'repartidor');
                 return;
             }
 
-            const selectedSalsas = [];
-            document.querySelectorAll('.salsa-checkbox:checked').forEach(cb => {
-                selectedSalsas.push({
-                    id: cb.dataset.salsaId,
-                    name: cb.dataset.salsaName,
-                    price: parseInt(cb.dataset.salsaPrice)
-                });
-            });
+            const adicionalesCopy = selectedAdicionales.slice();
 
             const existing = cartItems.find(i => i.productId === productId);
             if (existing) {
                 existing.quantity += quantity;
-                existing.salsas = selectedSalsas;
+                existing.adicionales = adicionalesCopy;
             } else {
-                cartItems.push({ productId, productName, quantity, salsas: selectedSalsas });
+                cartItems.push({ productId, productName, quantity, adicionales: adicionalesCopy });
             }
 
             qtyInput.value = 1;
@@ -387,7 +400,8 @@ $isRepartidor = ($user->role === 'repartidor');
             prodIdHidden.value = '';
             prodSearch.dispatchEvent(new Event('input', { bubbles: true }));
             prodSearch.focus();
-            document.getElementById('salsa-checkboxes').classList.add('hidden');
+            selectedAdicionales = [];
+            renderSelectedAdicionales();
             renderCart();
         });
 
@@ -598,10 +612,10 @@ select.required-field.field-filled {
                                 <div class="flex items-center gap-2">
                                     <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-black"><?= $item->quantity ?>x</span>
                                     <span class="font-bold text-slate-700 text-xs"><?= $item->hasValue('product') ? h($item->product->name) : '---' ?></span>
-                                    <?php if (!empty($item->order_product_salsas)): ?>
+                                    <?php if (!empty($item->order_adicionales)): ?>
                                         <div class="flex flex-wrap gap-1">
-                                            <?php foreach ($item->order_product_salsas as $ops): ?>
-                                                <span class="bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded text-[7px] font-bold"><?= h($ops->name) ?></span>
+                                            <?php foreach ($item->order_adicionales as $oa): ?>
+                                                <span class="bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded text-[7px] font-bold"><?= h($oa->name) ?></span>
                                             <?php endforeach; ?>
                                         </div>
                                     <?php endif; ?>

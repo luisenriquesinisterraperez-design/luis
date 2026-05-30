@@ -6,27 +6,27 @@ namespace App\Model\Entity;
 use Cake\ORM\Entity;
 
 /**
- * OrderProductSalsa Entity
+ * OrderAdicionale Entity
  *
  * @property int $id
  * @property int $order_id
- * @property int $product_salsa_id
+ * @property int $adicional_id
  * @property string $name
  * @property string $price
  * @property \Cake\I18n\DateTime|null $created
  *
  * @property \App\Model\Entity\Order $order
- * @property \App\Model\Entity\ProductSalsa $product_salsa
+ * @property \App\Model\Entity\Adicionale $adicional
  */
-class OrderProductSalsa extends Entity
+class OrderAdicionale extends Entity
 {
     protected array $_accessible = [
         'order_id' => true,
-        'product_salsa_id' => true,
+        'adicional_id' => true,
         'name' => true,
         'price' => true,
         'created' => true,
         'order' => true,
-        'product_salsa' => true,
+        'adicional' => true,
     ];
 }

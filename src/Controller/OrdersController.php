@@ -18,7 +18,7 @@ class OrdersController extends AppController
         $endDate = $this->request->getQuery('end_date');
 
         $query = $this->Orders->find()
-            ->contain(['Products', 'DeliveryDrivers', 'OrderLogs', 'OrderProductSalsas'])
+            ->contain(['Products', 'DeliveryDrivers', 'OrderLogs', 'OrderAdicionales'])
             ->orderBy([
                 'Orders.created' => 'DESC',
                 'Orders.id' => 'DESC'
@@ -56,18 +56,15 @@ class OrdersController extends AppController
 
         $clients = $this->fetchTable('Clients')->find()->all();
 
-        $productSalsas = $this->fetchTable('ProductSalsas')->find()
-            ->select(['id', 'product_id', 'name', 'price'])
+        $adicionales = $this->fetchTable('Adicionales')->find()
+            ->orderBy(['name' => 'ASC'])
             ->all()
-            ->groupBy('product_id')
-            ->map(function ($salsas) {
-                return $salsas->map(function ($s) {
-                    return ['id' => $s->id, 'name' => $s->name, 'price' => (float)$s->price];
-                })->toArray();
+            ->map(function ($a) {
+                return ['id' => $a->id, 'name' => $a->name, 'price' => (float)$a->price];
             })
-            ->toArray();
+            ->toList();
 
-        $this->set(compact('orders', 'products', 'deliveryDrivers', 'clients', 'isAdmin', 'startDate', 'endDate', 'productSalsas'));
+        $this->set(compact('orders', 'products', 'deliveryDrivers', 'clients', 'isAdmin', 'startDate', 'endDate', 'adicionales'));
     }
 
     public function add()
@@ -105,13 +102,13 @@ class OrdersController extends AppController
                 'shipping_cost' => ($index === 0) ? (($data['shipping_cost'] ?? '') !== '' ? $data['shipping_cost'] : 0) : 0
             ]);
 
-            $salsaIds = $item['salsa_ids'] ?? [];
-            if (!is_array($salsaIds)) {
-                $salsaIds = [];
+            $adicionalIds = $item['adicional_ids'] ?? [];
+            if (!is_array($adicionalIds)) {
+                $adicionalIds = [];
             }
 
             $order = $this->Orders->patchEntity($order, $orderData);
-            if ($this->Orders->save($order, ['salsa_ids' => $salsaIds])) {
+            if ($this->Orders->save($order, ['adicional_ids' => $adicionalIds])) {
                 $successCount++;
                 if (!$firstOrder) $firstOrder = $order;
                 $totalOrderAmount += $order->total;
@@ -161,7 +158,7 @@ class OrdersController extends AppController
 
     public function edit($id = null)
     {
-        $order = $this->Orders->get($id, contain: ['Products', 'OrderLogs' => ['Users'], 'OrderProductSalsas']);
+        $order = $this->Orders->get($id, contain: ['Products', 'OrderLogs' => ['Users'], 'OrderAdicionales']);
         $originalData = $order->toArray();
         $originalProductName = $order->product->name;
 
@@ -199,12 +196,12 @@ class OrdersController extends AppController
                 }
             }
 
-            $salsaIds = $data['salsa_ids'] ?? [];
-            if (!is_array($salsaIds)) {
-                $salsaIds = [];
+            $adicionalIds = $data['adicional_ids'] ?? [];
+            if (!is_array($adicionalIds)) {
+                $adicionalIds = [];
             }
 
-            if ($this->Orders->save($order, ['salsa_ids' => $salsaIds])) {
+            if ($this->Orders->save($order, ['adicional_ids' => $adicionalIds])) {
                 // Si el método de pago cambió a Crédito, crear AR
                 if ($isChangingToCredit) {
                     $clientsTable = $this->fetchTable('Clients');
@@ -254,25 +251,22 @@ class OrdersController extends AppController
         $products = $this->Orders->Products->find('list', limit: 200)->all();
         $deliveryDrivers = $this->Orders->DeliveryDrivers->find('list', limit: 200, keyField: 'id', valueField: 'full_name')->all();
 
-        $productSalsas = $this->fetchTable('ProductSalsas')->find()
-            ->select(['id', 'product_id', 'name', 'price'])
+        $adicionales = $this->fetchTable('Adicionales')->find()
+            ->orderBy(['name' => 'ASC'])
             ->all()
-            ->groupBy('product_id')
-            ->map(function ($salsas) {
-                return $salsas->map(function ($s) {
-                    return ['id' => $s->id, 'name' => $s->name, 'price' => (float)$s->price];
-                })->toArray();
+            ->map(function ($a) {
+                return ['id' => $a->id, 'name' => $a->name, 'price' => (float)$a->price];
             })
-            ->toArray();
+            ->toList();
 
-        $selectedSalsaIds = [];
-        if (!empty($order->order_product_salsas)) {
-            foreach ($order->order_product_salsas as $ops) {
-                $selectedSalsaIds[] = $ops->product_salsa_id;
+        $selectedAdicionalIds = [];
+        if (!empty($order->order_adicionales)) {
+            foreach ($order->order_adicionales as $oa) {
+                $selectedAdicionalIds[] = $oa->adicional_id;
             }
         }
 
-        $this->set(compact('order', 'products', 'deliveryDrivers', 'productSalsas', 'selectedSalsaIds'));
+        $this->set(compact('order', 'products', 'deliveryDrivers', 'adicionales', 'selectedAdicionalIds'));
     }
 
     public function updateStatusGroup($groupId = null, $newStatus = null)
@@ -352,12 +346,12 @@ class OrdersController extends AppController
 
     public function printTicketGroup($groupId = null)
     {
-        $query = $this->Orders->find()->contain(['Products', 'OrderProductSalsas'])->where(['order_group_id' => $groupId]);
+        $query = $this->Orders->find()->contain(['Products', 'OrderAdicionales'])->where(['order_group_id' => $groupId]);
         $orders = $query->toArray();
 
         if (empty($orders) && str_starts_with($groupId, 'SINGLE-')) {
             $id = str_replace('SINGLE-', '', $groupId);
-            $order = $this->Orders->get($id, contain: ['Products', 'OrderProductSalsas']);
+            $order = $this->Orders->get($id, contain: ['Products', 'OrderAdicionales']);
             $orders = [$order];
         }
 
@@ -387,7 +381,7 @@ class OrdersController extends AppController
 
     public function printTicket($id = null)
     {
-        $order = $this->Orders->get($id, contain: ['Products', 'OrderProductSalsas']);
+        $order = $this->Orders->get($id, contain: ['Products', 'OrderAdicionales']);
         $this->viewBuilder()->setLayout('ajax');
         $this->set(compact('order'));
     }

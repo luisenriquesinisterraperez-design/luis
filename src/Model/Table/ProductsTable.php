@@ -54,9 +54,7 @@ class ProductsTable extends Table
         $this->hasMany('ProductIngredients', [
             'foreignKey' => 'product_id',
         ]);
-        $this->hasMany('ProductSalsas', [
-            'foreignKey' => 'product_id',
-        ]);
+
     }
 
     /**

@@ -76,7 +76,7 @@ class AppController extends Controller
                     if ($isRepartidor) {
                         $allowed = ['Dashboard', 'Orders'];
                     } elseif ($isStaff) {
-                        $allowed = ['Dashboard', 'Orders', 'Products', 'Ingredients', 'Clients', 'DeliveryDrivers', 'DailyClosures', 'AccountsReceivable', 'ProductIngredients', 'ProductSalsas', 'InventoryAdjustments', 'Expenses', 'Requests'];
+                        $allowed = ['Dashboard', 'Orders', 'Products', 'Ingredients', 'Clients', 'DeliveryDrivers', 'DailyClosures', 'AccountsReceivable', 'ProductIngredients', 'Adicionales', 'InventoryAdjustments', 'Expenses', 'Requests'];
                     } elseif ($isCliente) {
                         $allowed = ['Dashboard', 'AccountsReceivable', 'Products'];
                     }

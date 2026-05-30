@@ -95,7 +95,7 @@
                 <?= $this->Form->end() ?>
             </div>
 
-            <!-- Botones Configurar Receta y Salsas -->
+            <!-- Botón Configurar Receta -->
             <div class="mt-3 space-y-2">
                 <?php if (empty($product->product_ingredients)): ?>
                     <div class="text-[8px] bg-red-50 text-red-500 font-bold p-1 rounded text-center uppercase">
@@ -104,7 +104,6 @@
                 <?php endif; ?>
                 <div class="flex gap-2">
                     <?= $this->Html->link('<i class="fa-solid fa-mortar-pestle mr-1"></i> Receta', ['controller' => 'ProductIngredients', 'action' => 'recipe', $product->id], ['escape' => false, 'class' => 'flex-1 text-center py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase hover:bg-orange-600 transition-colors shadow-sm']) ?>
-                    <?= $this->Html->link('<i class="fa-solid fa-bottle-droplet mr-1"></i> Salsas', ['controller' => 'ProductSalsas', 'action' => 'index', $product->id], ['escape' => false, 'class' => 'flex-1 text-center py-2 bg-orange-500 text-white rounded-xl text-[10px] font-black uppercase hover:bg-orange-600 transition-colors shadow-sm']) ?>
                 </div>
             </div>
         </div>

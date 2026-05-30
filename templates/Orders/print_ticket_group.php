@@ -139,10 +139,10 @@ foreach ($orders as $o) {
                     <td><?= $o->quantity ?></td>
                     <td>
                         <?= h($o->product->name) ?>
-                        <?php if (!empty($o->order_product_salsas)): ?>
+                        <?php if (!empty($o->order_adicionales)): ?>
                             <div style="font-size:9px;color:#555;">
-                                <?php foreach ($o->order_product_salsas as $ops): ?>
-                                    <div>+ <?= h($ops->name) ?> ($<?= number_format((float)$ops->price, 0) ?>)</div>
+                                <?php foreach ($o->order_adicionales as $oa): ?>
+                                    <div>+ <?= h($oa->name) ?> ($<?= number_format((float)$oa->price, 0) ?>)</div>
                                 <?php endforeach; ?>
                             </div>
                         <?php endif; ?>

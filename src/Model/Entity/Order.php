@@ -54,6 +54,6 @@ class Order extends Entity
         'modified' => true,
         'product' => true,
         'delivery_driver' => true,
-        'order_product_salsas' => true,
+        'order_adicionales' => true,
     ];
 }

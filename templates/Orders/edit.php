@@ -55,12 +55,12 @@
             <?= $this->Form->control('customer_address', ['label' => false, 'class' => 'w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-orange-500 transition-all']) ?>
         </div>
         
-        <div class="mb-6 p-5 bg-orange-50 rounded-2xl border border-orange-200">
-            <label class="text-[10px] font-bold text-orange-600 ml-2 uppercase mb-3 block flex items-center gap-2">
-                <i class="fa-solid fa-bottle-droplet"></i> Extras / Salsas
+        <div class="mb-6 p-5 bg-purple-50 rounded-2xl border border-purple-200">
+            <label class="text-[10px] font-bold text-purple-600 ml-2 uppercase mb-3 block flex items-center gap-2">
+                <i class="fa-solid fa-cubes"></i> Adicionales
             </label>
-            <div id="edit-salsa-list" class="flex flex-wrap gap-3">
-                <p class="text-xs text-slate-400 italic font-bold" id="edit-salsa-loading">Cargando...</p>
+            <div id="edit-adicional-list" class="flex flex-wrap gap-3">
+                <p class="text-xs text-slate-400 italic font-bold" id="edit-adicional-loading">Cargando...</p>
             </div>
         </div>
 
@@ -72,36 +72,29 @@
 </div>
 
 <script>
-var editSalsasData = <?= json_encode($productSalsas ?? []) ?>;
-var editSelectedSalsas = <?= json_encode($selectedSalsaIds ?? []) ?>;
+var editAdicionalesData = <?= json_encode($adicionales ?? []) ?>;
+var editSelectedAdicionales = <?= json_encode($selectedAdicionalIds ?? []) ?>;
 
-function renderEditSalsas(productId) {
-    var container = document.getElementById('edit-salsa-list');
-    var salsas = editSalsasData[productId] || [];
+function renderEditAdicionales() {
+    var container = document.getElementById('edit-adicional-list');
 
-    if (salsas.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-400 italic font-bold">Sin extras disponibles para este producto</p>';
+    if (editAdicionalesData.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-400 italic font-bold">No hay adicionales configurados</p>';
         return;
     }
 
     container.innerHTML = '';
-    salsas.forEach(function(s) {
-        var checked = editSelectedSalsas.indexOf(s.id) !== -1 ? 'checked' : '';
-        container.innerHTML += '<label class="flex items-center gap-1.5 text-xs font-bold text-slate-700 cursor-pointer bg-white hover:bg-orange-100 border border-slate-200 rounded-lg px-3 py-2 transition-colors">' +
-            '<input type="checkbox" name="salsa_ids[]" value="' + s.id + '" ' + checked + '>' +
-            ' ' + s.name +
-            (s.price > 0 ? ' <span class="text-green-600">+$' + s.price + '</span>' : ' <span class="text-slate-400">Gratis</span>') +
+    editAdicionalesData.forEach(function(a) {
+        var checked = editSelectedAdicionales.indexOf(a.id) !== -1 ? 'checked' : '';
+        container.innerHTML += '<label class="flex items-center gap-1.5 text-xs font-bold text-slate-700 cursor-pointer bg-white hover:bg-purple-100 border border-slate-200 rounded-lg px-3 py-2 transition-colors">' +
+            '<input type="checkbox" name="adicional_ids[]" value="' + a.id + '" ' + checked + '>' +
+            ' ' + a.name +
+            (a.price > 0 ? ' <span class="text-green-600">+$' + a.price + '</span>' : ' <span class="text-slate-400">Gratis</span>') +
             '</label>';
     });
 }
 
-var editProductSelect = document.getElementById('product-select');
-if (editProductSelect) {
-    editProductSelect.addEventListener('change', function() {
-        renderEditSalsas(this.value);
-    });
-    renderEditSalsas(editProductSelect.value);
-}
+renderEditAdicionales();
 </script>
 
 <?php if ($isAdmin): ?>
