@@ -35,17 +35,17 @@ class AppController extends Controller
     public function beforeFilter(EventInterface $event)
     {
         parent::beforeFilter($event);
-        
+
         $identity = $this->request->getAttribute('identity');
         $user = $identity ? $identity->getOriginalData() : null;
-        
+
         // Detección de roles simplificada
         $isSuperAdmin = ($user && (!empty($user->is_superadmin) || $user->role === 'admin' || $user->role === 'admin_empresa'));
         $isAdmin = $isSuperAdmin;
         $isRepartidor = ($user && !empty($user->role) && $user->role === 'repartidor');
         $isStaff = ($user && !empty($user->role) && $user->role === 'staff');
         $isCliente = ($user && !empty($user->role) && $user->role === 'cliente');
-        
+
         if ($user) {
             $controller = $this->request->getParam('controller');
             $action = $this->request->getParam('action');
@@ -57,6 +57,7 @@ class AppController extends Controller
                     // Permitido
                 } else {
                     $this->Flash->error(__('Acceso Denegado: Solo el Administrador puede gestionar estos módulos.'));
+
                     return $this->redirect(['controller' => 'Dashboard', 'action' => 'index']);
                 }
             }
@@ -64,6 +65,7 @@ class AppController extends Controller
             // 2. RESTRICCIONES DE ELIMINACIÓN (Solo Admin)
             if ($action === 'delete' && !$isAdmin) {
                 $this->Flash->error(__('Acceso Denegado: No tienes permiso para eliminar registros.'));
+
                 return $this->redirect($this->referer(['controller' => 'Dashboard', 'action' => 'index']));
             }
 
@@ -74,14 +76,15 @@ class AppController extends Controller
                     if ($isRepartidor) {
                         $allowed = ['Dashboard', 'Orders'];
                     } elseif ($isStaff) {
-                        $allowed = ['Dashboard', 'Orders', 'Products', 'Ingredients', 'Clients', 'DeliveryDrivers', 'DailyClosures', 'AccountsReceivable', 'ProductIngredients', 'InventoryAdjustments', 'Expenses', 'Requests'];
+                        $allowed = ['Dashboard', 'Orders', 'Products', 'Ingredients', 'Clients', 'DeliveryDrivers', 'DailyClosures', 'AccountsReceivable', 'ProductIngredients', 'ProductSalsas', 'InventoryAdjustments', 'Expenses', 'Requests'];
                     } elseif ($isCliente) {
                         $allowed = ['Dashboard', 'AccountsReceivable', 'Products'];
                     }
-                    
+
                     if (!in_array($controller, $allowed)) {
                         if (!($controller === 'Users' && in_array($action, ['login', 'logout', 'profile']))) {
                             $this->Flash->error(__('Módulo restringido para su perfil.'));
+
                             return $this->redirect(['controller' => 'Dashboard', 'action' => 'index']);
                         }
                     }

@@ -33,7 +33,7 @@ use Cake\Http\MiddlewareQueue;
 use Cake\ORM\Locator\TableLocator;
 use Cake\Routing\Middleware\AssetMiddleware;
 use Cake\Routing\Middleware\RoutingMiddleware;
-use Cake\Routing\Router;
+use josegonzalez\Dotenv\Loader;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -55,7 +55,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
     {
         // Forzar carga de .env para servidores que no lo leen automáticamente
         if (file_exists(dirname(__DIR__) . '/config/.env')) {
-            $dotenv = new \josegonzalez\Dotenv\Loader([dirname(__DIR__) . '/config/.env']);
+            $dotenv = new Loader([dirname(__DIR__) . '/config/.env']);
             $envData = $dotenv->parse()->toArray();
             foreach ($envData as $key => $val) {
                 putenv("{$key}={$val}");
@@ -149,7 +149,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
                     'className' => 'Authentication.Orm',
                     'userModel' => 'Users',
                 ],
-            ]
+            ],
         ]);
         // Fallback to session for already authenticated users
         $authenticationService->loadAuthenticator('Authentication.Session');

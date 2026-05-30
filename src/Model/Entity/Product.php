@@ -39,5 +39,6 @@ class Product extends Entity
         'created' => true,
         'modified' => true,
         'orders' => true,
+        'product_salsas' => true,
     ];
 }

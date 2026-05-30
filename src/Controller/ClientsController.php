@@ -23,6 +23,7 @@ class ClientsController extends AppController
                 $this->Flash->error(__('Error al registrar el cliente.'));
             }
         }
+
         return $this->redirect(['action' => 'index']);
     }
 
@@ -33,6 +34,7 @@ class ClientsController extends AppController
             $client = $this->Clients->patchEntity($client, $this->request->getData());
             if ($this->Clients->save($client)) {
                 $this->Flash->success(__('Datos del cliente actualizados.'));
+
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('Error al actualizar los datos.'));
@@ -50,10 +52,11 @@ class ClientsController extends AppController
             $user = $identity ? $identity->getOriginalData() : null;
             $this->logAudit(
                 $user ? $user->id : 1,
-                "ELIMINACIÓN: El usuario " . ($user ? $user->username : 'Sistema') . " eliminó el cliente \"{$clientName}\""
+                'ELIMINACIÓN: El usuario ' . ($user ? $user->username : 'Sistema') . " eliminó el cliente \"{$clientName}\"",
             );
             $this->Flash->success(__('Cliente eliminado.'));
         }
+
         return $this->redirect(['action' => 'index']);
     }
 }

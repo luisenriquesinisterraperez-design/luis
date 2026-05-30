@@ -30,7 +30,7 @@ class AccountPaymentsController extends AppController
      * @return \Cake\Http\Response|null|void Renders view
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function view($id = null)
+    public function view(?string $id = null)
     {
         $accountPayment = $this->AccountPayments->get($id, contain: []);
         $this->set(compact('accountPayment'));
@@ -63,7 +63,7 @@ class AccountPaymentsController extends AppController
      * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function edit($id = null)
+    public function edit(?string $id = null)
     {
         $accountPayment = $this->AccountPayments->get($id, contain: []);
         if ($this->request->is(['patch', 'post', 'put'])) {
@@ -85,7 +85,7 @@ class AccountPaymentsController extends AppController
      * @return \Cake\Http\Response|null Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function delete($id = null)
+    public function delete(?string $id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
         $accountPayment = $this->AccountPayments->get($id);
@@ -95,7 +95,7 @@ class AccountPaymentsController extends AppController
             // Sincronizar estado de la cuenta por cobrar
             $arTable = $this->fetchTable('AccountsReceivable');
             $account = $arTable->get($arId, contain: ['AccountPayments']);
-            
+
             // Si el saldo es mayor a 0 y estaba pagado, volver a pendiente
             if ($account->balance > 0 && $account->status === 'pagado') {
                 $account->status = 'pendiente';

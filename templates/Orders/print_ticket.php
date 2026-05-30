@@ -121,7 +121,16 @@ $branch = $order->branch;
             <tbody>
                 <tr>
                     <td><?= $order->quantity ?></td>
-                    <td><?= h($order->product->name) ?></td>
+                    <td>
+                        <?= h($order->product->name) ?>
+                        <?php if (!empty($order->order_product_salsas)): ?>
+                            <div style="font-size:9px;color:#555;">
+                                <?php foreach ($order->order_product_salsas as $ops): ?>
+                                    <div>+ <?= h($ops->name) ?> ($<?= number_format((float)$ops->price, 0) ?>)</div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                    </td>
                     <td class="text-right">$<?= number_format($order->total - ($order->shipping_cost ?? 0), 0) ?></td>
                 </tr>
                 <?php if ($order->shipping_cost > 0): ?>

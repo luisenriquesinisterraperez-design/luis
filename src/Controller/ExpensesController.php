@@ -23,6 +23,7 @@ class ExpensesController extends AppController
                 $this->Flash->error(__('No se pudo registrar el gasto.'));
             }
         }
+
         return $this->redirect(['action' => 'index']);
     }
 
@@ -33,6 +34,7 @@ class ExpensesController extends AppController
         if ($this->Expenses->delete($expense)) {
             $this->Flash->success(__('Gasto eliminado.'));
         }
+
         return $this->redirect(['action' => 'index']);
     }
 }

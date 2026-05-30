@@ -22,6 +22,7 @@ class DeliveryDriversController extends AppController
                 $this->Flash->error(__('No se pudo registrar al repartidor.'));
             }
         }
+
         return $this->redirect(['action' => 'index']);
     }
 
@@ -32,6 +33,7 @@ class DeliveryDriversController extends AppController
             $deliveryDriver = $this->DeliveryDrivers->patchEntity($deliveryDriver, $this->request->getData());
             if ($this->DeliveryDrivers->save($deliveryDriver)) {
                 $this->Flash->success(__('Datos actualizados.'));
+
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('No se pudo actualizar los datos.'));
@@ -49,10 +51,11 @@ class DeliveryDriversController extends AppController
             $user = $identity ? $identity->getOriginalData() : null;
             $this->logAudit(
                 $user ? $user->id : 1,
-                "ELIMINACIÓN: El usuario " . ($user ? $user->username : 'Sistema') . " eliminó al repartidor \"{$driverName}\""
+                'ELIMINACIÓN: El usuario ' . ($user ? $user->username : 'Sistema') . " eliminó al repartidor \"{$driverName}\"",
             );
             $this->Flash->success(__('Repartidor eliminado.'));
         }
+
         return $this->redirect(['action' => 'index']);
     }
 }

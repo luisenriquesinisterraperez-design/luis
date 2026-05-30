@@ -14,7 +14,7 @@ class DailyClosuresController extends AppController
     {
         $query = $this->DailyClosures->find()
             ->orderBy(['DailyClosures.created' => 'DESC']);
-            
+
         $dailyClosures = $this->paginate($query);
 
         $this->set(compact('dailyClosures'));
@@ -23,7 +23,7 @@ class DailyClosuresController extends AppController
     public function add()
     {
         $dailyClosure = $this->DailyClosures->newEmptyEntity();
-        
+
         $ordersTable = $this->fetchTable('Orders');
         $expensesTable = $this->fetchTable('Expenses');
         $paymentsTable = $this->fetchTable('AccountPayments');
@@ -35,7 +35,7 @@ class DailyClosuresController extends AppController
             ->where(['DATE(created)' => $selectedDate, 'payment_method !=' => 'Crédito'])
             ->select(['total' => 'SUM(total)'])
             ->first();
-        
+
         // 2. Abonos que se hicieron hoy (Dinero que entró hoy por deudas viejas)
         $abonos = $paymentsTable->find()
             ->where(['DATE(created)' => $selectedDate])
@@ -53,7 +53,7 @@ class DailyClosuresController extends AppController
         $totalExpenses = (float)($expenses->total ?? 0);
 
         // El ingreso REAL esperado es: (Ventas Directas + Abonos) - Gastos
-        $netExpectedIncome = ($totalSales + $totalAbonos) - $totalExpenses;
+        $netExpectedIncome = $totalSales + $totalAbonos - $totalExpenses;
 
         if ($this->request->is('post')) {
             $dailyClosure = $this->DailyClosures->patchEntity($dailyClosure, $this->request->getData());
@@ -61,6 +61,7 @@ class DailyClosuresController extends AppController
 
             if ($this->DailyClosures->save($dailyClosure)) {
                 $this->Flash->success(__('El cierre de caja ha sido guardado.'));
+
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('No se pudo guardar el cierre de caja.'));
@@ -79,12 +80,13 @@ class DailyClosuresController extends AppController
             $user = $identity ? $identity->getOriginalData() : null;
             $this->logAudit(
                 $user ? $user->id : 1,
-                "ELIMINACIÓN: El usuario " . ($user ? $user->username : 'Sistema') . " eliminó el cierre de caja del {$closureDate}"
+                'ELIMINACIÓN: El usuario ' . ($user ? $user->username : 'Sistema') . " eliminó el cierre de caja del {$closureDate}",
             );
             $this->Flash->success(__('El registro de cierre ha sido eliminado.'));
         } else {
             $this->Flash->error(__('No se pudo eliminar el registro.'));
         }
+
         return $this->redirect(['action' => 'index']);
     }
 }

@@ -95,14 +95,17 @@
                 <?= $this->Form->end() ?>
             </div>
 
-            <!-- Botón Configurar Receta -->
-            <div class="mt-3">
+            <!-- Botones Configurar Receta y Salsas -->
+            <div class="mt-3 space-y-2">
                 <?php if (empty($product->product_ingredients)): ?>
-                    <div class="text-[8px] bg-red-50 text-red-500 font-bold p-1 rounded mb-1 text-center uppercase">
+                    <div class="text-[8px] bg-red-50 text-red-500 font-bold p-1 rounded text-center uppercase">
                         <i class="fa-solid fa-triangle-exclamation mr-1"></i> Sin receta (No descuenta stock)
                     </div>
                 <?php endif; ?>
-                <?= $this->Html->link('<i class="fa-solid fa-mortar-pestle mr-1"></i> Receta', ['controller' => 'ProductIngredients', 'action' => 'recipe', $product->id], ['escape' => false, 'class' => 'block w-full text-center py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase hover:bg-orange-600 transition-colors shadow-sm']) ?>
+                <div class="flex gap-2">
+                    <?= $this->Html->link('<i class="fa-solid fa-mortar-pestle mr-1"></i> Receta', ['controller' => 'ProductIngredients', 'action' => 'recipe', $product->id], ['escape' => false, 'class' => 'flex-1 text-center py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase hover:bg-orange-600 transition-colors shadow-sm']) ?>
+                    <?= $this->Html->link('<i class="fa-solid fa-bottle-droplet mr-1"></i> Salsas', ['controller' => 'ProductSalsas', 'action' => 'index', $product->id], ['escape' => false, 'class' => 'flex-1 text-center py-2 bg-orange-500 text-white rounded-xl text-[10px] font-black uppercase hover:bg-orange-600 transition-colors shadow-sm']) ?>
+                </div>
             </div>
         </div>
     </div>

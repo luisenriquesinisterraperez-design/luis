@@ -47,7 +47,8 @@
             </div>
         </div>
         
-        <div class="flex gap-4 pt-6 border-t border-slate-50">
+        <div class="flex gap-2 pt-6 border-t border-slate-50">
+            <?= $this->Html->link('<i class="fa-solid fa-bottle-droplet mr-1"></i> Salsas', ['controller' => 'ProductSalsas', 'action' => 'index', $product->id], ['escape' => false, 'class' => 'px-4 bg-orange-50 text-orange-600 font-bold rounded-2xl py-4 uppercase hover:bg-orange-100 transition-all text-xs flex items-center']) ?>
             <?= $this->Form->button(__('Guardar Cambios'), ['class' => 'flex-1 bg-orange-600 text-white font-black rounded-2xl py-4 uppercase shadow-lg hover:bg-orange-700 active:scale-95 transition-all']) ?>
             <?= $this->Form->postLink(__('Eliminar Producto'), ['action' => 'delete', $product->id], ['confirm' => __('¿Estás seguro de eliminar este producto?'), 'class' => 'px-6 bg-red-50 text-red-500 font-bold rounded-2xl py-4 uppercase hover:bg-red-100 transition-all text-xs']) ?>
         </div>

@@ -34,7 +34,7 @@ class AccountsReceivableController extends AppController
         $summaryQuery = $this->AccountsReceivable->find()
             ->contain(['AccountPayments'])
             ->where($where);
-        
+
         $totalOutstanding = 0;
         $pendingCount = 0;
         foreach ($summaryQuery as $account) {
@@ -168,7 +168,7 @@ class AccountsReceivableController extends AppController
 
                 $this->logAudit(
                     $user ? $user->id : 1,
-                    'ABONO: El usuario ' . ($user ? $user->username : 'Sistema') . " registró un abono de $" . number_format((float)$data['amount'], 0) . " para la cuenta de " . $account->client->full_name . ". Saldo restante: $" . number_format($totalDebt - $totalPaid, 0)
+                    'ABONO: El usuario ' . ($user ? $user->username : 'Sistema') . ' registró un abono de $' . number_format((float)$data['amount'], 0) . ' para la cuenta de ' . $account->client->full_name . '. Saldo restante: $' . number_format($totalDebt - $totalPaid, 0),
                 );
 
                 $this->Flash->success(__('Abono registrado con éxito. Saldo actual: $' . number_format($totalDebt - $totalPaid, 0)));
@@ -196,7 +196,7 @@ class AccountsReceivableController extends AppController
         if ($this->AccountsReceivable->save($account)) {
             $this->logAudit(
                 $user ? $user->id : 1,
-                'PAGO TOTAL: El usuario ' . ($user ? $user->username : 'Sistema') . " marcó como pagada la deuda de " . $account->client->full_name
+                'PAGO TOTAL: El usuario ' . ($user ? $user->username : 'Sistema') . ' marcó como pagada la deuda de ' . $account->client->full_name,
             );
             $this->Flash->success(__('La deuda ha sido marcada como pagada.'));
         } else {

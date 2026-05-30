@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Exception;
+
 /**
  * Ingredients Controller
  *
@@ -36,7 +38,7 @@ class IngredientsController extends AppController
      * @return \Cake\Http\Response|null|void Renders view
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function view($id = null)
+    public function view(?string $id = null)
     {
         $ingredient = $this->Ingredients->get($id, contain: ['ProductIngredients']);
         $this->set(compact('ingredient'));
@@ -69,10 +71,10 @@ class IngredientsController extends AppController
      * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function edit($id = null)
+    public function edit(?string $id = null)
     {
         $ingredient = $this->Ingredients->get($id, contain: [
-            'ProductIngredients' => ['Products']
+            'ProductIngredients' => ['Products'],
         ]);
         $oldStock = (float)$ingredient->stock;
         $oldCost = (float)$ingredient->cost;
@@ -100,11 +102,12 @@ class IngredientsController extends AppController
                     $user = $identity ? $identity->getOriginalData() : null;
                     $this->logAudit(
                         $user ? $user->id : 1,
-                        "AJUSTE STOCK: El usuario " . ($user ? $user->username : 'Sistema') . " cambió el stock de \"{$ingredient->name}\" de {$oldStock} a {$newStock} ({$type} {$diff})"
+                        'AJUSTE STOCK: El usuario ' . ($user ? $user->username : 'Sistema') . " cambió el stock de \"{$ingredient->name}\" de {$oldStock} a {$newStock} ({$type} {$diff})",
                     );
                 }
 
                 $this->Flash->success(__('El insumo ha sido actualizado.'));
+
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('No se pudo actualizar el insumo. Por favor, intente de nuevo.'));
@@ -119,12 +122,12 @@ class IngredientsController extends AppController
      * @return \Cake\Http\Response|null Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function delete($id = null)
+    public function delete(?string $id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
         $ingredient = $this->Ingredients->get($id);
         $ingredientName = $ingredient->name;
-        
+
         try {
             // 1. Eliminar relaciones en recetas
             $productIngredientsTable = $this->fetchTable('ProductIngredients');
@@ -139,13 +142,13 @@ class IngredientsController extends AppController
                 $user = $identity ? $identity->getOriginalData() : null;
                 $this->logAudit(
                     $user ? $user->id : 1,
-                    "ELIMINACIÓN: El usuario " . ($user ? $user->username : 'Sistema') . " eliminó el insumo \"{$ingredientName}\""
+                    'ELIMINACIÓN: El usuario ' . ($user ? $user->username : 'Sistema') . " eliminó el insumo \"{$ingredientName}\"",
                 );
                 $this->Flash->success(__('El insumo y sus relaciones han sido eliminados correctamente.'));
             } else {
                 $this->Flash->error(__('No se pudo eliminar el insumo. Por favor, intente de nuevo.'));
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->Flash->error(__('Error de base de datos: ') . $e->getMessage());
         }
 
