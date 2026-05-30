@@ -262,19 +262,19 @@
 
         <!-- Main Content -->
         <div class="p-4 md:p-10 max-w-full min-h-screen">
-            <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                <div class="flex items-center gap-5">
-                    <div class="w-1.5 h-12 bg-red-500 rounded-full"></div>
-                        <div>
-                            <h2 class="text-[10px] font-black text-red-500 uppercase tracking-[0.4em] mb-1">DaviRapid</h2>
-                            <h1 class="text-2xl md:text-3xl font-black text-slate-900 tracking-tight"><?= h($this->fetch('title')) ?></h1>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3 bg-gradient-to-r from-red-600 to-orange-500 px-5 py-2.5 rounded-2xl shadow-lg shadow-red-200 border border-red-400">
-                        <i class="fa-solid fa-clock text-white/90 text-sm"></i>
-                        <span class="text-xs font-bold text-white tracking-wide" id="live-clock"></span>
+            <div class="mb-4 md:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 bg-white p-4 md:p-6 rounded-3xl shadow-sm border border-slate-200">
+                <div class="flex items-center gap-4 min-w-0">
+                    <div class="w-1 h-10 md:w-1.5 md:h-12 bg-red-500 rounded-full shrink-0"></div>
+                    <div class="min-w-0">
+                        <h2 class="text-[10px] font-black text-red-500 uppercase tracking-[0.4em] mb-1">DaviRapid</h2>
+                        <h1 class="text-lg md:text-3xl font-black text-slate-900 tracking-tight truncate"><?= h($this->fetch('title')) ?></h1>
                     </div>
                 </div>
+                <div class="flex items-center gap-2 md:gap-3 bg-gradient-to-r from-red-600 to-orange-500 px-3 md:px-5 py-2 md:py-2.5 rounded-2xl shadow-lg shadow-red-200 border border-red-400 shrink-0">
+                    <i class="fa-solid fa-clock text-white/90 text-xs md:text-sm"></i>
+                    <span class="text-[10px] md:text-xs font-bold text-white tracking-wide" id="live-clock"></span>
+                </div>
+            </div>
                 <?= $this->Flash->render() ?>
                 <?= $this->fetch('content') ?>
             </div>
@@ -363,11 +363,11 @@
             (function() {
                 var el = document.getElementById('live-clock');
                 if (!el) return;
-                var months = 'enero_febrero_marzo_abril_mayo_junio_julio_agosto_septiembre_octubre_noviembre_diciembre'.split('_');
-                var days = 'domingo_lunes_martes_miercoles_jueves_viernes_sabado'.split('_');
+                var months = 'ene_feb_mar_abr_may_jun_jul_ago_sep_oct_nov_dic'.split('_');
+                var days = 'dom_lun_mar_mie_jue_vie_sab'.split('_');
                 function tick() {
                     var d = new Date();
-                    el.textContent = days[d.getDay()] + ', ' + d.getDate() + ' de ' + months[d.getMonth()] + ' de ' + d.getFullYear() + ' - ' + d.toLocaleTimeString('es-CO');
+                    el.textContent = days[d.getDay()] + ' ' + d.getDate() + '/' + (d.getMonth()+1) + ' - ' + d.toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'});
                 }
                 tick();
                 setInterval(tick, 1000);
