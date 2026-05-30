@@ -67,7 +67,7 @@ class ProductIngredientsController extends AppController
             return $this->redirect(['action' => 'recipe', $productId]);
         }
 
-        $ingredients = $this->ProductIngredients->Ingredients->find('list', ['limit' => 200])->all();
+        $ingredients = $this->ProductIngredients->Ingredients->find('list', limit: 200)->all();
         $ingredientCosts = [];
         $costsData = $this->ProductIngredients->Ingredients->find()
             ->select(['id', 'cost', 'unit'])

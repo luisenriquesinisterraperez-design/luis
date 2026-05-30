@@ -46,7 +46,7 @@ class InventoryAdjustmentsController extends AppController
             }
             $this->Flash->error(__('No se pudo registrar el ajuste. Por favor, intente de nuevo.'));
         }
-        $ingredients = $this->InventoryAdjustments->Ingredients->find('list', ['limit' => 200])->all();
+        $ingredients = $this->InventoryAdjustments->Ingredients->find('list', limit: 200)->all();
         $this->set(compact('inventoryAdjustment', 'ingredients'));
     }
 

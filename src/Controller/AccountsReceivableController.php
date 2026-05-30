@@ -120,7 +120,7 @@ class AccountsReceivableController extends AppController
             }
             $this->Flash->error(__('No se pudo guardar la cuenta por cobrar. Por favor, intente de nuevo.'));
         }
-        $clients = $this->AccountsReceivable->Clients->find('list', ['limit' => 200, 'keyField' => 'id', 'valueField' => 'full_name'])->all();
+        $clients = $this->AccountsReceivable->Clients->find('list', limit: 200, keyField: 'id', valueField: 'full_name')->all();
         $this->set(compact('accountsReceivable', 'clients'));
     }
 

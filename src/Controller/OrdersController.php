@@ -52,11 +52,7 @@ class OrdersController extends AppController
         $products = $this->Orders->Products->find('list', limit: 200)->all();
         
         $driversTable = $this->fetchTable('DeliveryDrivers');
-        $deliveryDrivers = $driversTable->find('list', [
-            'keyField' => 'id',
-            'valueField' => 'full_name',
-            'limit' => 200
-        ])->all();
+        $deliveryDrivers = $driversTable->find('list', keyField: 'id', valueField: 'full_name', limit: 200)->all();
 
         $clients = $this->fetchTable('Clients')->find()->all();
 
