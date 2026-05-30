@@ -3,7 +3,7 @@
 <head>
     <?= $this->Html->charset() ?>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CERRAJERÍA SARRIA - <?= $this->fetch('title') ?></title>
+    <title>SABOR EXPRESS - <?= $this->fetch('title') ?></title>
     <?= $this->Html->meta('icon') ?>
     
     <?= $this->Html->css('tailwind.css') ?>
@@ -35,14 +35,14 @@
             }
         }
 
-        /* Sidebar - Brand Colors (Blue & Black) */
+        /* Sidebar - Brand Colors (Red & Black) */
         .sidebar {
             width: 280px;
-            background: #0f172a; /* Navy Black */
+            background: #1a1a1a; /* Dark Black */
             color: #f8fafc;
             flex-shrink: 0;
             display: none;
-            border-right: 4px solid #facc15; /* Yellow Border */
+            border-right: 4px solid #ef4444; /* Red Border */
         }
 
         @media (min-width: 1024px) {
@@ -76,9 +76,9 @@
         }
 
         .nav-link.active {
-            color: #0f172a;
-            background: #facc15; /* Yellow Active */
-            box-shadow: 0 10px 15px -3px rgba(250, 204, 21, 0.3);
+            color: #ffffff;
+            background: #ef4444; /* Red Active */
+            box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3);
         }
 
         .nav-link i {
@@ -96,13 +96,13 @@
 
         /* Mobile Header */
         .mobile-header {
-            background: #0f172a;
+            background: #1a1a1a;
             color: white;
             padding: 16px 20px;
             position: sticky;
             top: 0;
             z-index: 50;
-            border-bottom: 3px solid #facc15;
+            border-bottom: 3px solid #ef4444;
         }
 
         /* Professional Details */
@@ -164,19 +164,19 @@
             <div class="p-8 mb-4 bg-[#1e293b]/50">
                 <div class="flex items-center gap-4">
                     <div class="bg-yellow-400 text-slate-900 w-12 h-12 flex items-center justify-center rounded-2xl shadow-lg shadow-yellow-400/20 transform -rotate-6">
-                        <i class="fa-solid fa-store text-2xl"></i>
+                        <i class="fa-solid fa-burger text-2xl"></i>
                     </div>
                     <div>
                         <span class="font-black text-xl tracking-tighter text-white uppercase italic leading-none block">
-                            SARRIA<span class="text-yellow-400">.</span>
+                            SABOR<span class="text-yellow-400">.</span>
                         </span>
-                        <span class="text-[9px] font-black text-blue-400 tracking-[0.3em] uppercase">Cerrajería</span>
+                        <span class="text-[9px] font-black text-orange-400 tracking-[0.3em] uppercase">Comidas Rápidas</span>
                     </div>
                 </div>
             </div>
 
             <nav class="flex-1 flex flex-col pb-8">
-                <div class="section-tag text-blue-400">Menú de Usuario</div>
+                <div class="section-tag text-orange-400">Menú de Usuario</div>
                 <?php
                 $catalogAction = ($isAdmin || $isStaff) ? 'index' : 'catalog';
                 $navItems = [
@@ -229,7 +229,7 @@
 
             <div class="mt-auto border-t border-slate-800 p-6">
                 <div class="flex items-center gap-3 bg-slate-800/50 p-3 rounded-xl border border-slate-700">
-                    <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-sm uppercase">
+                    <div class="w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center text-white font-black text-sm uppercase">
                         <?= substr($user->username, 0, 1) ?>
                     </div>
                     <div class="flex-1 min-w-0">
@@ -247,26 +247,26 @@
             <header class="lg:hidden mobile-header flex justify-between items-center shadow-lg">
                 <div class="flex items-center gap-3">
                     <div class="bg-yellow-400 text-slate-900 p-2 rounded-lg transform -rotate-3">
-                        <i class="fa-solid fa-store text-sm"></i>
+                        <i class="fa-solid fa-burger text-sm"></i>
                     </div>
-                    <span class="font-black text-lg text-white uppercase italic tracking-tighter">SARRIA<span class="text-yellow-400">.</span></span>
+                    <span class="font-black text-lg text-white uppercase italic tracking-tighter">SABOR<span class="text-yellow-400">.</span></span>
                 </div>
-                <button id="drawer-toggle" class="p-3 text-yellow-400 bg-slate-800 rounded-lg">
+                <button id="drawer-toggle" class="p-3 text-yellow-400 bg-neutral-800 rounded-lg">
                     <i class="fa-solid fa-bars-staggered text-xl"></i>
                 </button>
             </header>
 
-            <!-- Page Content -->
-            <div class="p-4 md:p-10 max-w-full min-h-screen">
-                <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                    <div class="flex items-center gap-5">
-                        <div class="w-1.5 h-12 bg-yellow-400 rounded-full"></div>
+        <!-- Main Content -->
+        <div class="p-4 md:p-10 max-w-full min-h-screen">
+            <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                <div class="flex items-center gap-5">
+                    <div class="w-1.5 h-12 bg-red-500 rounded-full"></div>
                         <div>
-                            <h2 class="text-[10px] font-black text-blue-600 uppercase tracking-[0.4em] mb-1">Cerrajería Sarria</h2>
+                            <h2 class="text-[10px] font-black text-red-500 uppercase tracking-[0.4em] mb-1">Sabor Express</h2>
                             <h1 class="text-2xl md:text-3xl font-black text-slate-900 tracking-tight"><?= h($this->fetch('title')) ?></h1>
                         </div>
                     </div>
-                    <div class="flex items-center gap-3 bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 rounded-2xl shadow-lg shadow-blue-200 border border-blue-400">
+                    <div class="flex items-center gap-3 bg-gradient-to-r from-red-600 to-orange-500 px-5 py-2.5 rounded-2xl shadow-lg shadow-red-200 border border-red-400">
                         <i class="fa-solid fa-clock text-white/90 text-sm"></i>
                         <span class="text-xs font-bold text-white tracking-wide" id="live-clock"></span>
                     </div>
@@ -279,13 +279,13 @@
 
     <!-- Mobile Drawer -->
     <div id="drawer-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[90] opacity-0 pointer-events-none transition-opacity"></div>
-    <div id="mobile-drawer" class="fixed inset-y-0 left-0 w-80 bg-[#0f172a] z-[100] transform -translate-x-full transition-transform ease-in-out duration-300 shadow-2xl flex flex-col border-r-4 border-yellow-400">
+    <div id="mobile-drawer" class="fixed inset-y-0 left-0 w-80 bg-[#1a1a1a] z-[100] transform -translate-x-full transition-transform ease-in-out duration-300 shadow-2xl flex flex-col border-r-4 border-red-500">
         <div class="p-8 border-b border-slate-800 flex justify-between items-center bg-[#1e293b]/50">
             <span class="font-black text-yellow-400 uppercase text-xs tracking-widest">Navegación Pro</span>
             <button id="drawer-close" class="text-white"><i class="fa-solid fa-xmark text-2xl"></i></button>
         </div>
         <div class="flex-1 min-h-0 overflow-y-auto drawer-scroll pt-4">
-            <div class="section-tag text-blue-400">Operaciones</div>
+            <div class="section-tag text-orange-400">Operaciones</div>
             <?php foreach ($navItems as $item): if (!isset($item[4]) || $item[4]): ?>
                 <?= $this->Html->link('<i class="fa-solid ' . $item[2] . '"></i> ' . $item[3], ['controller' => $item[0], 'action' => $item[1]], ['escape' => false, 'class' => 'nav-link ' . ($this->request->getParam('controller') == $item[0] ? 'active' : '')]) ?>
             <?php endif; endforeach; ?>
@@ -298,7 +298,7 @@
             <?php endif; ?>
 
             <?php if ($isAdmin): ?>
-            <div class="section-tag text-blue-400 pt-6">Configuración</div>
+            <div class="section-tag text-orange-400 pt-6">Configuración</div>
                 <?= $this->Html->link('<i class="fa-solid fa-user-shield"></i> Usuarios', ['controller' => 'Users', 'action' => 'index'], ['escape' => false, 'class' => 'nav-link ' . ($this->request->getParam('controller') == 'Users' ? 'active' : '')]) ?>
                 <?= $this->Html->link('<i class="fa-solid fa-sliders"></i> Ajustes', ['controller' => 'InventoryAdjustments', 'action' => 'index'], ['escape' => false, 'class' => 'nav-link ' . ($this->request->getParam('controller') == 'InventoryAdjustments' ? 'active' : '')]) ?>
             <?php endif; ?>
@@ -311,18 +311,18 @@
 
     <?php else: ?>
         <!-- Login Layout -->
-        <main class="min-h-screen flex items-center justify-center p-6 bg-[#0f172a] relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-2 bg-yellow-400"></div>
-            <div class="absolute bottom-[-10%] right-[-5%] w-96 h-96 bg-blue-600/10 rounded-full blur-3xl"></div>
-            <div class="absolute top-[-10%] left-[-5%] w-96 h-96 bg-red-600/10 rounded-full blur-3xl"></div>
+        <main class="min-h-screen flex items-center justify-center p-6 bg-[#1a1a1a] relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-red-500"></div>
+            <div class="absolute bottom-[-10%] right-[-5%] w-96 h-96 bg-red-600/10 rounded-full blur-3xl"></div>
+            <div class="absolute top-[-10%] left-[-5%] w-96 h-96 bg-orange-600/10 rounded-full blur-3xl"></div>
 
             <div class="w-full max-w-sm relative z-10">
                 <div class="text-center mb-10">
                     <div class="bg-yellow-400 text-slate-900 w-20 h-20 flex items-center justify-center rounded-[2.5rem] mx-auto shadow-2xl shadow-yellow-400/20 mb-8 transform -rotate-12 border-4 border-white">
-                        <i class="fa-solid fa-store text-3xl"></i>
+                        <i class="fa-solid fa-burger text-3xl"></i>
                     </div>
-                    <h1 class="text-4xl font-black text-white uppercase italic tracking-tighter leading-none">SARRIA<span class="text-yellow-400">.</span></h1>
-                    <p class="text-[10px] font-black text-blue-400 tracking-[0.5em] uppercase mt-4">Cerrajería Profesional</p>
+                    <h1 class="text-4xl font-black text-white uppercase italic tracking-tighter leading-none">SABOR<span class="text-yellow-400">.</span></h1>
+                    <p class="text-[10px] font-black text-orange-400 tracking-[0.5em] uppercase mt-4">Comidas Rápidas</p>
                 </div>
                 <div class="bg-white p-3 rounded-[3rem] shadow-2xl shadow-black/50">
                     <div class="p-8">

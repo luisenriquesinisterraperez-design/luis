@@ -75,7 +75,7 @@ $isStaff = ($user && $user->role === 'staff'); // Explicitly check for staff rol
     <header class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div>
             <h1 class="text-3xl font-black text-slate-800 tracking-tight uppercase">Resumen de Control Total</h1>
-            <p class="text-blue-600 font-bold uppercase text-xs tracking-widest">CERRAJERÍA SARRIA Administration Panel</p>
+            <p class="text-red-500 font-bold uppercase text-xs tracking-widest">SABOR EXPRESS Administration Panel</p>
         </div>
         
         <div class="flex flex-col md:flex-row items-center gap-2">
@@ -267,7 +267,7 @@ $isStaff = ($user && $user->role === 'staff'); // Explicitly check for staff rol
     <header class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div>
             <h1 class="text-3xl font-black text-slate-800 tracking-tight uppercase">Resumen de Operaciones</h1>
-            <p class="text-blue-600 font-bold uppercase text-xs tracking-widest">CERRAJERÍA SARRIA - Acceso Limitado</p>
+            <p class="text-red-500 font-bold uppercase text-xs tracking-widest">SABOR EXPRESS - Acceso Limitado</p>
         </div>
         <div class="flex flex-col md:flex-row items-center gap-2">
              <?= $this->Form->create(null, ['type' => 'get', 'class' => 'flex items-center gap-2']) ?>
