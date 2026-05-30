@@ -42,6 +42,10 @@ class OrdersTable extends Table
             'foreignKey' => 'order_id',
             'dependent' => false,
         ]);
+        $this->hasMany('OrderProductSalsas', [
+            'foreignKey' => 'order_id',
+            'dependent' => true,
+        ]);
     }
 
     public function validationDefault(Validator $validator): Validator
@@ -100,7 +104,16 @@ class OrdersTable extends Table
         if ($entity->isNew() || $entity->isDirty('product_id') || $entity->isDirty('quantity') || $entity->isDirty('shipping_cost')) {
             try {
                 $product = $this->Products->get($entity->product_id);
-                $entity->total = ($product->price * $entity->quantity) + (float)($entity->shipping_cost ?? 0);
+                $salsaTotal = 0;
+                $salsaIds = $options['salsa_ids'] ?? [];
+                if (!empty($salsaIds)) {
+                    $salsasTable = $this->getTableLocator()->get('ProductSalsas');
+                    $salsas = $salsasTable->find()->where(['id IN' => $salsaIds])->all();
+                    foreach ($salsas as $s) {
+                        $salsaTotal += (float)$s->price * $entity->quantity;
+                    }
+                }
+                $entity->total = ($product->price * $entity->quantity) + $salsaTotal + (float)($entity->shipping_cost ?? 0);
             } catch (Exception $e) {
                 Log::error('Error calculando total para pedido: ' . $e->getMessage());
             }
@@ -165,11 +178,32 @@ class OrdersTable extends Table
 
     public function afterSave(EventInterface $event, EntityInterface $entity, ArrayObject $options): void
     {
+        // Guardar salsas seleccionadas
+        $salsaIds = $options['salsa_ids'] ?? [];
+        if (!empty($salsaIds)) {
+            $opsTable = $this->getTableLocator()->get('OrderProductSalsas');
+            $salsasTable = $this->getTableLocator()->get('ProductSalsas');
+
+            if (!$entity->isNew()) {
+                $opsTable->deleteAll(['order_id' => $entity->id]);
+            }
+
+            $salsas = $salsasTable->find()->where(['id IN' => $salsaIds])->all();
+            foreach ($salsas as $s) {
+                $ops = $opsTable->newEntity([
+                    'order_id' => $entity->id,
+                    'product_salsa_id' => $s->id,
+                    'name' => $s->name,
+                    'price' => $s->price,
+                ]);
+                $opsTable->save($ops);
+            }
+        }
+
         // Aplicar el descuento del inventario actual
         if ($entity->get('inventory_needs_update')) {
             Log::info("SUBTRACTING INVENTORY (AfterSave, Order ID {$entity->id}): Product ID {$entity->product_id}, Qty {$entity->quantity}");
             $this->_adjustInventory($entity->product_id, (int)$entity->quantity, 'subtract');
-            // Evitar que se ejecute de nuevo si se guarda la misma entidad
             $entity->set('inventory_needs_update', false);
         }
     }

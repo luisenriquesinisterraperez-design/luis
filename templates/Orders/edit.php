@@ -19,7 +19,7 @@
         <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-6">
             <div class="md:col-span-4">
                 <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Producto</label>
-                <?= $this->Form->control('product_id', ['options' => $products, 'label' => false, 'class' => 'w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-orange-500 transition-all font-bold text-slate-700']) ?>
+                <?= $this->Form->control('product_id', ['options' => $products, 'label' => false, 'class' => 'w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-orange-500 transition-all font-bold text-slate-700', 'id' => 'product-select']) ?>
             </div>
             <div class="md:col-span-2">
                 <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Cantidad</label>
@@ -55,12 +55,54 @@
             <?= $this->Form->control('customer_address', ['label' => false, 'class' => 'w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-orange-500 transition-all']) ?>
         </div>
         
+        <div class="mb-6 p-5 bg-orange-50 rounded-2xl border border-orange-200">
+            <label class="text-[10px] font-bold text-orange-600 ml-2 uppercase mb-3 block flex items-center gap-2">
+                <i class="fa-solid fa-bottle-droplet"></i> Extras / Salsas
+            </label>
+            <div id="edit-salsa-list" class="flex flex-wrap gap-3">
+                <p class="text-xs text-slate-400 italic font-bold" id="edit-salsa-loading">Cargando...</p>
+            </div>
+        </div>
+
         <div class="flex gap-4 pt-6 border-t border-slate-50">
             <?= $this->Form->button(__('Guardar Cambios'), ['class' => 'flex-1 bg-green-600 text-white font-black rounded-2xl py-4 uppercase shadow-lg hover:bg-green-700 active:scale-95 transition-all']) ?>
             <?= $this->Form->postLink(__('Eliminar Pedido'), ['action' => 'delete', $order->id], ['confirm' => __('¿Eliminar este pedido definitivamente?'), 'class' => 'px-6 bg-red-50 text-red-500 font-bold rounded-2xl py-4 uppercase hover:bg-red-100 transition-all text-xs']) ?>
         </div>
     <?= $this->Form->end() ?>
 </div>
+
+<script>
+var editSalsasData = <?= json_encode($productSalsas ?? []) ?>;
+var editSelectedSalsas = <?= json_encode($selectedSalsaIds ?? []) ?>;
+
+function renderEditSalsas(productId) {
+    var container = document.getElementById('edit-salsa-list');
+    var salsas = editSalsasData[productId] || [];
+
+    if (salsas.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-400 italic font-bold">Sin extras disponibles para este producto</p>';
+        return;
+    }
+
+    container.innerHTML = '';
+    salsas.forEach(function(s) {
+        var checked = editSelectedSalsas.indexOf(s.id) !== -1 ? 'checked' : '';
+        container.innerHTML += '<label class="flex items-center gap-1.5 text-xs font-bold text-slate-700 cursor-pointer bg-white hover:bg-orange-100 border border-slate-200 rounded-lg px-3 py-2 transition-colors">' +
+            '<input type="checkbox" name="salsa_ids[]" value="' + s.id + '" ' + checked + '>' +
+            ' ' + s.name +
+            (s.price > 0 ? ' <span class="text-green-600">+$' + s.price + '</span>' : ' <span class="text-slate-400">Gratis</span>') +
+            '</label>';
+    });
+}
+
+var editProductSelect = document.getElementById('product-select');
+if (editProductSelect) {
+    editProductSelect.addEventListener('change', function() {
+        renderEditSalsas(this.value);
+    });
+    renderEditSalsas(editProductSelect.value);
+}
+</script>
 
 <?php if ($isAdmin): ?>
 <div class="mt-10">

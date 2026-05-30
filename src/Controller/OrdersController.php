@@ -18,7 +18,7 @@ class OrdersController extends AppController
         $endDate = $this->request->getQuery('end_date');
 
         $query = $this->Orders->find()
-            ->contain(['Products', 'DeliveryDrivers', 'OrderLogs'])
+            ->contain(['Products', 'DeliveryDrivers', 'OrderLogs', 'OrderProductSalsas'])
             ->orderBy([
                 'Orders.created' => 'DESC',
                 'Orders.id' => 'DESC'
@@ -56,7 +56,18 @@ class OrdersController extends AppController
 
         $clients = $this->fetchTable('Clients')->find()->all();
 
-        $this->set(compact('orders', 'products', 'deliveryDrivers', 'clients', 'isAdmin', 'startDate', 'endDate'));
+        $productSalsas = $this->fetchTable('ProductSalsas')->find()
+            ->select(['id', 'product_id', 'name', 'price'])
+            ->all()
+            ->groupBy('product_id')
+            ->map(function ($salsas) {
+                return $salsas->map(function ($s) {
+                    return ['id' => $s->id, 'name' => $s->name, 'price' => (float)$s->price];
+                })->toArray();
+            })
+            ->toArray();
+
+        $this->set(compact('orders', 'products', 'deliveryDrivers', 'clients', 'isAdmin', 'startDate', 'endDate', 'productSalsas'));
     }
 
     public function add()
@@ -94,8 +105,13 @@ class OrdersController extends AppController
                 'shipping_cost' => ($index === 0) ? (($data['shipping_cost'] ?? '') !== '' ? $data['shipping_cost'] : 0) : 0
             ]);
 
+            $salsaIds = $item['salsa_ids'] ?? [];
+            if (!is_array($salsaIds)) {
+                $salsaIds = [];
+            }
+
             $order = $this->Orders->patchEntity($order, $orderData);
-            if ($this->Orders->save($order)) {
+            if ($this->Orders->save($order, ['salsa_ids' => $salsaIds])) {
                 $successCount++;
                 if (!$firstOrder) $firstOrder = $order;
                 $totalOrderAmount += $order->total;
@@ -145,7 +161,7 @@ class OrdersController extends AppController
 
     public function edit($id = null)
     {
-        $order = $this->Orders->get($id, contain: ['Products', 'OrderLogs' => ['Users']]);
+        $order = $this->Orders->get($id, contain: ['Products', 'OrderLogs' => ['Users'], 'OrderProductSalsas']);
         $originalData = $order->toArray();
         $originalProductName = $order->product->name;
 
@@ -183,7 +199,12 @@ class OrdersController extends AppController
                 }
             }
 
-            if ($this->Orders->save($order)) {
+            $salsaIds = $data['salsa_ids'] ?? [];
+            if (!is_array($salsaIds)) {
+                $salsaIds = [];
+            }
+
+            if ($this->Orders->save($order, ['salsa_ids' => $salsaIds])) {
                 // Si el método de pago cambió a Crédito, crear AR
                 if ($isChangingToCredit) {
                     $clientsTable = $this->fetchTable('Clients');
@@ -232,7 +253,26 @@ class OrdersController extends AppController
         }
         $products = $this->Orders->Products->find('list', limit: 200)->all();
         $deliveryDrivers = $this->Orders->DeliveryDrivers->find('list', limit: 200, keyField: 'id', valueField: 'full_name')->all();
-        $this->set(compact('order', 'products', 'deliveryDrivers'));
+
+        $productSalsas = $this->fetchTable('ProductSalsas')->find()
+            ->select(['id', 'product_id', 'name', 'price'])
+            ->all()
+            ->groupBy('product_id')
+            ->map(function ($salsas) {
+                return $salsas->map(function ($s) {
+                    return ['id' => $s->id, 'name' => $s->name, 'price' => (float)$s->price];
+                })->toArray();
+            })
+            ->toArray();
+
+        $selectedSalsaIds = [];
+        if (!empty($order->order_product_salsas)) {
+            foreach ($order->order_product_salsas as $ops) {
+                $selectedSalsaIds[] = $ops->product_salsa_id;
+            }
+        }
+
+        $this->set(compact('order', 'products', 'deliveryDrivers', 'productSalsas', 'selectedSalsaIds'));
     }
 
     public function updateStatusGroup($groupId = null, $newStatus = null)
@@ -312,12 +352,12 @@ class OrdersController extends AppController
 
     public function printTicketGroup($groupId = null)
     {
-        $query = $this->Orders->find()->contain(['Products'])->where(['order_group_id' => $groupId]);
+        $query = $this->Orders->find()->contain(['Products', 'OrderProductSalsas'])->where(['order_group_id' => $groupId]);
         $orders = $query->toArray();
 
         if (empty($orders) && str_starts_with($groupId, 'SINGLE-')) {
             $id = str_replace('SINGLE-', '', $groupId);
-            $order = $this->Orders->get($id, contain: ['Products']);
+            $order = $this->Orders->get($id, contain: ['Products', 'OrderProductSalsas']);
             $orders = [$order];
         }
 
@@ -347,7 +387,7 @@ class OrdersController extends AppController
 
     public function printTicket($id = null)
     {
-        $order = $this->Orders->get($id, contain: ['Products']);
+        $order = $this->Orders->get($id, contain: ['Products', 'OrderProductSalsas']);
         $this->viewBuilder()->setLayout('ajax');
         $this->set(compact('order'));
     }
