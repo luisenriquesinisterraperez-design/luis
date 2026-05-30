@@ -6,16 +6,21 @@
 <?= $this->Flash->render() ?>
 
 <?= $this->Form->create() ?>
-<div class="space-y-6">
+<div class="space-y-5">
+    <div class="flex items-center gap-3 mb-6">
+        <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+        <span class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Acceso al Sistema</span>
+    </div>
+
     <div>
         <div class="relative">
-            <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 text-lg">
-                <i class="fa-solid fa-user"></i>
+            <span class="absolute left-5 top-1/2 -translate-y-1/2 text-red-400">
+                <i class="fa-solid fa-user text-lg"></i>
             </span>
             <?= $this->Form->control('username', [
                 'label' => false,
                 'placeholder' => 'Usuario',
-                'class' => 'w-full pl-14 pr-5 py-4 bg-slate-100 border-2 border-transparent rounded-2xl outline-none focus:border-red-500 focus:bg-white transition-all text-slate-700 font-bold text-sm',
+                'class' => 'w-full pl-14 pr-5 py-4 bg-red-50 border-2 border-red-100 rounded-2xl outline-none focus:border-red-600 focus:bg-red-50 transition-all text-slate-700 font-bold text-sm',
                 'required' => true
             ]) ?>
         </div>
@@ -23,13 +28,13 @@
 
     <div>
         <div class="relative">
-            <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 text-lg">
-                <i class="fa-solid fa-lock"></i>
+            <span class="absolute left-5 top-1/2 -translate-y-1/2 text-red-400">
+                <i class="fa-solid fa-lock text-lg"></i>
             </span>
             <?= $this->Form->control('password', [
                 'label' => false,
                 'placeholder' => 'Contraseña',
-                'class' => 'w-full pl-14 pr-5 py-4 bg-slate-100 border-2 border-transparent rounded-2xl outline-none focus:border-red-500 focus:bg-white transition-all text-slate-700 font-bold text-sm',
+                'class' => 'w-full pl-14 pr-5 py-4 bg-red-50 border-2 border-red-100 rounded-2xl outline-none focus:border-red-600 focus:bg-red-50 transition-all text-slate-700 font-bold text-sm',
                 'required' => true,
                 'type' => 'password'
             ]) ?>
@@ -37,9 +42,8 @@
     </div>
 
     <div class="pt-2">
-        <?= $this->Form->button('<i class="fa-solid fa-arrow-right-to-bracket mr-2"></i> ' . __('INGRESAR'), [
-            'escape' => false,
-            'class' => 'w-full bg-red-600 text-white py-4 rounded-2xl font-black text-sm hover:bg-red-700 shadow-lg shadow-red-600/30 active:scale-[0.98] transition-all uppercase tracking-widest'
+        <?= $this->Form->button('INGRESAR', [
+            'class' => 'w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-4 rounded-2xl font-black text-sm hover:from-yellow-400 hover:to-yellow-500 hover:text-slate-900 shadow-xl shadow-red-600/30 active:scale-[0.98] transition-all uppercase tracking-[0.3em]'
         ]) ?>
     </div>
 </div>

@@ -324,7 +324,7 @@
                     <h1 class="text-5xl font-black text-white uppercase tracking-tight leading-none">DAVIRAPID</h1>
                     <p class="text-xs font-bold text-yellow-400 tracking-[0.3em] uppercase mt-3">Sistema de Gestión</p>
                 </div>
-                <div class="bg-white rounded-3xl shadow-[0_20px_60px_-12px_rgba(0,0,0,0.5)] overflow-hidden">
+                <div class="bg-white rounded-3xl shadow-[0_20px_60px_-12px_rgba(0,0,0,0.5)] overflow-hidden border border-red-100">
                     <div class="p-8 pt-10">
                         <?= $this->Flash->render() ?>
                         <?= $this->fetch('content') ?>
