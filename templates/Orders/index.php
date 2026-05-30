@@ -653,6 +653,17 @@ select.required-field.field-filled {
                                 <div class="flex items-center gap-2">
                                     <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-black"><?= $item->quantity ?>x</span>
                                     <span class="font-bold text-slate-700 text-xs"><?= $item->hasValue('product') ? h($item->product->name) : '---' ?></span>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </td>
+                    <td class="p-4">
+                        <div class="font-bold text-slate-700 text-xs"><?= h($mainOrder->customer_name) ?></div>
+                        <div class="text-[10px] text-slate-500 mt-0.5">
+                            <i class="fa-solid fa-phone text-[9px] mr-1"></i> <?= h($mainOrder->customer_phone) ?> 
+                            <?php if ($mainOrder->customer_address): ?>
+                                <br><span class="text-blue-500"><i class="fa-solid fa-map-marker-alt text-[9px] mr-1 mt-1"></i> <?= h($mainOrder->customer_address) ?></span>
+                            <?php endif; ?>
                             <?php if ($mainOrder->hasValue('delivery_driver')): ?>
                                 <br><span class="text-orange-600 font-bold"><i class="fa-solid fa-motorcycle text-[9px] mr-1 mt-1"></i> <?= h($mainOrder->delivery_driver->full_name) ?></span>
                             <?php endif; ?>
@@ -672,6 +683,8 @@ select.required-field.field-filled {
                                         <span class="bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded text-[8px] font-bold"><?= h($oa->name) ?> ($<?= number_format((float)$oa->price, 0) ?>)</span>
                                     <?php endforeach; ?>
                                 </div>
+                            <?php else: ?>
+                                <br><span class="text-slate-400 text-[9px] italic">N/A</span>
                             <?php endif; ?>
                         </div>
                     </td>
