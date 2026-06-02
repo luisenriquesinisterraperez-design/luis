@@ -55,8 +55,9 @@ $isRepartidor = ($user->role === 'repartidor');
                         <?php endforeach; ?>
                     </datalist>
                 </div>
-                <div id="venta-direccion-container">                    <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Dirección</label>
-                    <?= $this->Form->text('customer_address', ['placeholder' => 'Calle, Barrio...', 'class' => 'w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 required-field', 'id' => 'customer-address']) ?>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Tipo de Venta</label>
+                    <?= $this->Form->select('type', ['local' => 'Punto Físico (Local)', 'domicilio' => 'Servicio a Domicilio 🛵'], ['class' => 'w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500', 'id' => 'venta-tipo']) ?>
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Método de Pago</label>
@@ -128,9 +129,9 @@ $isRepartidor = ($user->role === 'repartidor');
 
             <!-- Configuración Final -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div>
-                    <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Tipo de Venta</label>
-                    <?= $this->Form->select('type', ['local' => 'Punto Físico (Local)', 'domicilio' => 'Servicio a Domicilio 🛵'], ['class' => 'w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500', 'id' => 'venta-tipo']) ?>
+                <div id="venta-direccion-container">
+                    <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Dirección</label>
+                    <?= $this->Form->text('customer_address', ['placeholder' => 'Calle, Barrio...', 'class' => 'w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 required-field', 'id' => 'customer-address']) ?>
                 </div>
                 <div id="venta-envio-container">
                     <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Costo de Envío ($)</label>
