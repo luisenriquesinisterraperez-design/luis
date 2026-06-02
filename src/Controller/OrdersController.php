@@ -112,6 +112,11 @@ class OrdersController extends AppController
                 $successCount++;
                 if (!$firstOrder) $firstOrder = $order;
                 $totalOrderAmount += $order->total;
+
+                $hasRecipe = $this->fetchTable('ProductIngredients')->exists(['product_id' => $item['product_id']]);
+                if (!$hasRecipe) {
+                    $this->Flash->warning(__('Producto #' . $item['product_id'] . ' no tiene receta. No se descontó inventario.'));
+                }
             } else {
                 \Cake\Log\Log::error("ADD ORDER ITEM FAILED. Errors: " . print_r($order->getErrors(), true));
                 $itemErrors = $order->getErrors();

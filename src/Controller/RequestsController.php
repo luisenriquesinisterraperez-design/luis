@@ -30,6 +30,11 @@ class RequestsController extends AppController
         $order->status = 'recibido';
 
         if ($this->fetchTable('Orders')->save($order)) {
+            $hasRecipe = $this->fetchTable('ProductIngredients')->exists(['product_id' => $order->product_id]);
+            if (!$hasRecipe) {
+                $this->Flash->warning(__('Este producto no tiene receta. No se descontó inventario.'));
+            }
+
             if ($order->payment_method === 'Crédito') {
                 $clientsTable = $this->fetchTable('Clients');
                 $client = $clientsTable->find()->where(['phone' => $order->customer_phone])->first();

@@ -322,15 +322,13 @@ class DashboardController extends AppController
 
     public function syncInventory()
     {
-        $this->request->allowMethod(['get', 'post']);
+        $this->request->allowMethod(['get']);
 
         $ingredientsTable = $this->fetchTable('Ingredients');
         $ordersTable = $this->fetchTable('Orders');
 
-        // Obtener todos los ingredientes
         $ingredients = $ingredientsTable->find()->all();
 
-        // Calcular uso total por ingrediente con SQL directo
         $connection = $ordersTable->getConnection();
         $usageQuery = $connection->execute('
             SELECT pi.ingredient_id, SUM(pi.quantity_required * o.quantity) as total_used
@@ -345,41 +343,29 @@ class DashboardController extends AppController
             $usageMap[(int)$row['ingredient_id']] = (float)$row['total_used'];
         }
 
+        // Productos sin receta (no vinculados a ingredients)
+        $productsTable = $this->fetchTable('Products');
+        $productsWithoutRecipe = $productsTable->find()
+            ->leftJoinWith('ProductIngredients')
+            ->where(['ProductIngredients.id IS' => null, 'Products.status' => true])
+            ->select(['Products.id', 'Products.name'])
+            ->all();
+
         $report = [];
 
         foreach ($ingredients as $ingredient) {
             $totalUsed = $usageMap[(int)$ingredient->id] ?? 0;
-            $initialStock = (float)$ingredient->stock + $totalUsed;
-            $correctStock = $initialStock - $totalUsed;
-            $diff = (float)$ingredient->stock - $correctStock;
 
             $report[] = [
                 'id' => $ingredient->id,
                 'name' => $ingredient->name,
                 'current_stock' => (float)$ingredient->stock,
                 'total_used' => $totalUsed,
-                'initial_stock' => $initialStock,
-                'correct_stock' => $correctStock,
-                'diff' => $diff,
+                'stock_restante' => (float)$ingredient->stock - $totalUsed,
                 'unit' => $ingredient->unit,
             ];
         }
 
-        // Si es POST, corregir el stock
-        if ($this->request->is('post')) {
-            $fixed = 0;
-            foreach ($report as $r) {
-                $ingredient = $ingredientsTable->get($r['id']);
-                $ingredient->stock = $r['correct_stock'];
-                if ($ingredientsTable->save($ingredient)) {
-                    $fixed++;
-                }
-            }
-            $this->Flash->success(__("Inventario corregido: {$fixed} insumos actualizados."));
-
-            return $this->redirect(['action' => 'syncInventory']);
-        }
-
-        $this->set(compact('report'));
+        $this->set(compact('report', 'productsWithoutRecipe'));
     }
 }
