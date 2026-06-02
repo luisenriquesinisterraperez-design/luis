@@ -731,6 +731,9 @@ select.required-field.field-filled {
                             <?php if ($envioUnico > 0): ?>
                                 <div class="text-[10px] text-blue-500 font-bold">Envío: $<?= number_format($envioUnico, 0) ?></div>
                             <?php endif; ?>
+                            <?php if ($mainOrder->hasValue('delivery_driver')): ?>
+                                <div class="text-[10px] text-orange-600 font-bold">Repartidor recauda: $<?= number_format($subtotalProductos + $envioUnico, 0) ?></div>
+                            <?php endif; ?>
                             <div class="font-black text-orange-600 text-sm mt-1">$<?= number_format($subtotalProductos + $envioUnico, 0) ?></div>
                         </td>
                     <?php endif; ?>

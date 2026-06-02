@@ -121,6 +121,10 @@ foreach ($orders as $o) {
             <?php if ($mainOrder->type === 'domicilio'): ?>
                 <p><strong>DIR:</strong> <?= h($mainOrder->customer_address) ?></p>
             <?php endif; ?>
+            <?php if ($mainOrder->hasValue('delivery_driver')): ?>
+                <p><strong>REPARTIDOR:</strong> <?= h($mainOrder->delivery_driver->full_name) ?></p>
+                <p><strong>RECAUDA:</strong> $<?= number_format($totalVenta + $totalEnvio, 0) ?></p>
+            <?php endif; ?>
         </div>
 
         <div class="divider"></div>

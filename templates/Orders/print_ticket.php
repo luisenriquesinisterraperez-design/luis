@@ -106,6 +106,10 @@ $branch = $order->branch;
             <?php if ($order->type === 'domicilio'): ?>
                 <p><strong>DIR:</strong> <?= h($order->customer_address) ?></p>
             <?php endif; ?>
+            <?php if ($order->hasValue('delivery_driver')): ?>
+                <p><strong>REPARTIDOR:</strong> <?= h($order->delivery_driver->full_name) ?></p>
+                <p><strong>RECAUDA:</strong> $<?= number_format($order->total, 0) ?></p>
+            <?php endif; ?>
         </div>
 
         <div class="divider"></div>
