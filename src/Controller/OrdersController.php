@@ -61,15 +61,17 @@ class OrdersController extends AppController
         $driversTable = $this->fetchTable('DeliveryDrivers');
         $deliveryDrivers = $driversTable->find('list', keyField: 'id', valueField: 'full_name', limit: 200)->all();
 
+        $driversMap = $driversTable->find()->all()->indexBy('id');
         $repartidoresData = $this->fetchTable('Users')->find()
             ->contain(['Clients'])
             ->where(['Users.role' => 'repartidor', 'Users.delivery_driver_id IS NOT NULL'])
             ->all()
-            ->map(function ($user) {
+            ->map(function ($user) use ($driversMap) {
+                $driver = $driversMap[$user->delivery_driver_id] ?? null;
                 return [
                     'delivery_driver_id' => $user->delivery_driver_id,
-                    'customer_name' => $user->client ? $user->client->full_name : $user->username,
-                    'customer_phone' => $user->client ? $user->client->phone : '',
+                    'customer_name' => $user->client ? $user->client->full_name : ($driver ? $driver->full_name : $user->username),
+                    'customer_phone' => $user->client ? $user->client->phone : ($driver ? $driver->phone : ''),
                     'customer_address' => $user->client ? $user->client->address : '',
                 ];
             })
