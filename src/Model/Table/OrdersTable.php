@@ -119,6 +119,23 @@ class OrdersTable extends Table
             }
         }
 
+        // --- VALIDAR STOCK SUFICIENTE ---
+        $checkProductId = $entity->isNew() ? $entity->product_id : ($entity->isDirty('product_id') ? $entity->product_id : null);
+        $checkQuantity = $entity->isNew() ? $entity->quantity : ($entity->isDirty('quantity') ? $entity->quantity : null);
+        if ($checkProductId !== null && $checkQuantity !== null && !in_array($entity->status, ['cancelado', 'pendiente'])) {
+            $stockErrors = $this->_checkStock((int)$checkProductId, (int)$checkQuantity);
+            if (!empty($stockErrors)) {
+                $msg = 'No hay suficiente inventario para realizar la venta:';
+                foreach ($stockErrors as $err) {
+                    $msg .= " {$err['nombre']} (necesario: {$err['necesario']}, stock: {$err['stock']})";
+                    $entity->setError('product_id', __("{$err['nombre']}: falta {$err['necesario']} {$err['unidad']}, hay {$err['stock']} {$err['unidad']}"));
+                }
+                Log::warning('VENTA BLOQUEADA POR STOCK: ' . $msg);
+
+                return;
+            }
+        }
+
         // --- RESTAURAR INVENTARIO SI ES EDICIÓN ---
         if (!$entity->isNew() && ($entity->isDirty('product_id') || $entity->isDirty('quantity'))) {
             // Solo restauramos si el estado original NO era cancelado (si era cancelado, ya estaba restaurado)
@@ -132,7 +149,7 @@ class OrdersTable extends Table
                 $oldQuantity = $oldQuantity ?? $entity->quantity;
 
                 Log::info("Restoring OLD inventory due to edit (Order ID {$entity->id}): Product ID {$oldProductId}, Qty {$oldQuantity}");
-                $this->_adjustInventory($oldProductId, (int)$oldQuantity, 'add');
+                $this->_adjustInventory($oldProductId, (int)$oldQuantity, 'add', $entity->id);
             }
 
             // Si el nuevo estado no es cancelado, necesitamos restar lo nuevo en afterSave
@@ -155,7 +172,7 @@ class OrdersTable extends Table
             // 1. De Activo a Cancelado -> Restaurar stock
             if ($oldStatus !== 'cancelado' && $newStatus === 'cancelado') {
                 Log::info("Order status changed to cancelled. Restoring inventory for Order ID: {$entity->id}");
-                $this->_adjustInventory($entity->product_id, (int)$entity->quantity, 'add');
+                $this->_adjustInventory($entity->product_id, (int)$entity->quantity, 'add', $entity->id);
                 $entity->set('inventory_needs_update', false);
             }
             // 2. De Cancelado a Activo -> Restar stock
@@ -203,7 +220,7 @@ class OrdersTable extends Table
         // Aplicar el descuento del inventario actual
         if ($entity->get('inventory_needs_update')) {
             Log::info("SUBTRACTING INVENTORY (AfterSave, Order ID {$entity->id}): Product ID {$entity->product_id}, Qty {$entity->quantity}");
-            $this->_adjustInventory($entity->product_id, (int)$entity->quantity, 'subtract');
+            $this->_adjustInventory($entity->product_id, (int)$entity->quantity, 'subtract', $entity->id);
             $entity->set('inventory_needs_update', false);
         }
     }
@@ -213,7 +230,7 @@ class OrdersTable extends Table
         // Restore inventory if order was not cancelled
         if ($entity->status !== 'cancelado') {
             Log::info("Restoring inventory for Order ID: {$entity->id} before deletion.");
-            $this->_adjustInventory($entity->product_id, (int)$entity->quantity, 'add');
+            $this->_adjustInventory($entity->product_id, (int)$entity->quantity, 'add', $entity->id);
         }
 
         // Handle associated AccountsReceivable
@@ -255,9 +272,48 @@ class OrdersTable extends Table
     }
 
     /**
+     * Verifica stock suficiente para una receta
+     *
+     * @return array<int, array{nombre: string, necesario: float, stock: float, unidad: string}>
+     */
+    protected function _checkStock(int $productId, int $quantity): array
+    {
+        $errors = [];
+        $productIngredientsTable = $this->getTableLocator()->get('ProductIngredients');
+
+        $recipes = $productIngredientsTable->find()
+            ->where(['product_id' => $productId])
+            ->contain(['Ingredients'])
+            ->all();
+
+        if ($recipes->isEmpty()) {
+            Log::warning("STOCK CHECK: Producto ID {$productId} no tiene receta configurada");
+
+            return $errors;
+        }
+
+        foreach ($recipes as $recipe) {
+            $needed = (float)$recipe->quantity_required * $quantity;
+            $stock = (float)$recipe->ingredient->stock;
+            $unit = $recipe->ingredient->unit;
+
+            if ($stock < $needed) {
+                $errors[] = [
+                    'nombre' => $recipe->ingredient->name,
+                    'necesario' => $needed,
+                    'stock' => $stock,
+                    'unidad' => $unit,
+                ];
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
      * Método centralizado para ajustar inventario
      */
-    protected function _adjustInventory($productId, $quantity, $mode = 'subtract'): void
+    protected function _adjustInventory($productId, $quantity, $mode = 'subtract', $orderId = null): void
     {
         $productIngredientsTable = $this->getTableLocator()->get('ProductIngredients');
         $ingredientsTable = $this->getTableLocator()->get('Ingredients');
@@ -276,6 +332,8 @@ class OrdersTable extends Table
             return;
         }
 
+        $adjustmentsTable = $this->getTableLocator()->get('InventoryAdjustments');
+
         foreach ($recipes as $recipe) {
             try {
                 $ingredient = $ingredientsTable->get($recipe->ingredient_id);
@@ -293,6 +351,19 @@ class OrdersTable extends Table
                 } else {
                     Log::info("STOCK ACTUALIZADO ({$mode}): {$ingredient->name} | Antes: {$oldStock} | Ahora: {$ingredient->stock} (Pedido: {$productId} x{$quantity})");
                 }
+
+                $reason = $orderId
+                    ? ($mode === 'subtract' ? "Venta #{$orderId}" : "Cancelacion #{$orderId}")
+                    : ($mode === 'subtract' ? 'Venta directa' : 'Ajuste manual');
+
+                $adjustment = $adjustmentsTable->newEntity([
+                    'ingredient_id' => $ingredient->id,
+                    'quantity' => $amount,
+                    'type' => $mode === 'subtract' ? 'baja' : 'alta',
+                    'reason' => $reason,
+                    'observations' => "Producto ID {$productId} x{$quantity} | {$ingredient->name} | Stock: {$oldStock} → {$ingredient->stock}",
+                ]);
+                $adjustmentsTable->save($adjustment);
             } catch (Exception $e) {
                 Log::error("Excepción ajustando inventario (Insumo ID {$recipe->ingredient_id}): " . $e->getMessage());
             }

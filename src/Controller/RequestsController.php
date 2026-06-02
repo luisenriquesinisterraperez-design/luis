@@ -78,7 +78,16 @@ class RequestsController extends AppController
                 $this->Flash->success(__('Solicitud aprobada. Ventas actualizadas.'));
             }
         } else {
-            $this->Flash->error(__('No se pudo aprobar la solicitud.'));
+            $errors = $order->getErrors();
+            if (!empty($errors)) {
+                $flat = [];
+                array_walk_recursive($errors, function ($v) use (&$flat) {
+                    $flat[] = $v;
+                });
+                $this->Flash->error(__('No se pudo aprobar: ' . implode(' | ', $flat)));
+            } else {
+                $this->Flash->error(__('No se pudo aprobar la solicitud.'));
+            }
         }
 
         return $this->redirect(['action' => 'index']);

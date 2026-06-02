@@ -114,6 +114,15 @@ class OrdersController extends AppController
                 $totalOrderAmount += $order->total;
             } else {
                 \Cake\Log\Log::error("ADD ORDER ITEM FAILED. Errors: " . print_r($order->getErrors(), true));
+                $itemErrors = $order->getErrors();
+                if (!empty($itemErrors)) {
+                    $flat = [];
+                    array_walk_recursive($itemErrors, function ($v) use (&$flat) {
+                        $flat[] = $v;
+                    });
+                    $errorMsg = 'Producto #' . ($item['product_id'] ?? '?') . ': ' . implode(' | ', $flat);
+                    $this->Flash->error(__($errorMsg));
+                }
             }
         }
 
