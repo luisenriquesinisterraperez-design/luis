@@ -13,9 +13,7 @@ class ProductIngredientsController extends AppController
             return $this->redirect(['controller' => 'Products', 'action' => 'index']);
         }
 
-        $product = $this->fetchTable('Products')->get($productId, [
-            'contain' => ['ProductIngredients' => ['Ingredients']],
-        ]);
+        $product = $this->fetchTable('Products')->get($productId, contain: ['ProductIngredients' => ['Ingredients']]);
 
         if ($this->request->is('post')) {
             $data = $this->request->getData();
