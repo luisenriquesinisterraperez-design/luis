@@ -120,10 +120,18 @@ class OrdersTable extends Table
         }
 
         // --- VALIDAR STOCK SUFICIENTE ---
-        $checkProductId = $entity->isNew() ? $entity->product_id : ($entity->isDirty('product_id') ? $entity->product_id : null);
-        $checkQuantity = $entity->isNew() ? $entity->quantity : ($entity->isDirty('quantity') ? $entity->quantity : null);
-        if ($checkProductId !== null && $checkQuantity !== null && !in_array($entity->status, ['cancelado', 'pendiente'])) {
-            $stockErrors = $this->_checkStock((int)$checkProductId, (int)$checkQuantity);
+        $needsStockCheck = $entity->isNew()
+            || $entity->isDirty('product_id')
+            || $entity->isDirty('quantity');
+        if (!$needsStockCheck && !$entity->isNew() && $entity->isDirty('status')) {
+            $oldSt = $entity->getOriginal('status');
+            $newSt = $entity->status;
+            $needsStockCheck = ($oldSt === 'pendiente' && $newSt === 'recibido')
+                || ($oldSt === 'cancelado' && $newSt !== 'cancelado');
+        }
+
+        if ($needsStockCheck && !in_array($entity->status, ['cancelado', 'pendiente'])) {
+            $stockErrors = $this->_checkStock((int)$entity->product_id, (int)$entity->quantity);
             if (!empty($stockErrors)) {
                 $msg = 'No hay suficiente inventario para realizar la venta:';
                 foreach ($stockErrors as $err) {
