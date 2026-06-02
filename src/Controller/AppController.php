@@ -54,19 +54,21 @@ class AppController extends Controller
             $adminControllers = ['Users', 'OrderLogs'];
             if (in_array($controller, $adminControllers) && !$isAdmin) {
                 if ($controller === 'Users' && in_array($action, ['login', 'logout', 'profile'])) {
-                    // Permitido
-                } else {
-                    $this->Flash->error(__('Acceso Denegado: Solo el Administrador puede gestionar estos módulos.'));
+                        // Permitido
+                    } else {
+                        $this->Flash->error(__('Acceso Denegado: Solo el Administrador puede gestionar estos módulos.'));
+                        $event->setResult($this->redirect(['controller' => 'Dashboard', 'action' => 'index']));
 
-                    return $this->redirect(['controller' => 'Dashboard', 'action' => 'index']);
-                }
+                        return;
+                    }
             }
 
             // 2. RESTRICCIONES DE ELIMINACIÓN (Solo Admin)
             if ($action === 'delete' && !$isAdmin) {
                 $this->Flash->error(__('Acceso Denegado: No tienes permiso para eliminar registros.'));
+                $event->setResult($this->redirect($this->referer(['controller' => 'Dashboard', 'action' => 'index'])));
 
-                return $this->redirect($this->referer(['controller' => 'Dashboard', 'action' => 'index']));
+                return;
             }
 
             // 3. RESTRICCIONES DE MÓDULOS PARA STAFF / REPARTIDOR / CLIENTE
@@ -84,8 +86,9 @@ class AppController extends Controller
                     if (!in_array($controller, $allowed)) {
                         if (!($controller === 'Users' && in_array($action, ['login', 'logout', 'profile']))) {
                             $this->Flash->error(__('Módulo restringido para su perfil.'));
+                            $event->setResult($this->redirect(['controller' => 'Dashboard', 'action' => 'index']));
 
-                            return $this->redirect(['controller' => 'Dashboard', 'action' => 'index']);
+                            return;
                         }
                     }
                 }
