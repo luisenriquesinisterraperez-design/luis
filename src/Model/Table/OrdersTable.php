@@ -131,10 +131,12 @@ class OrdersTable extends Table
         }
 
         if ($needsStockCheck && !in_array($entity->status, ['cancelado', 'pendiente'])) {
-            $stockErrors = $this->_checkStock((int)$entity->product_id, (int)$entity->quantity);
-            if (!empty($stockErrors)) {
+            $stockCheck = $this->_checkStock((int)$entity->product_id, (int)$entity->quantity);
+            $entity->set('no_recipe_warning', $stockCheck['no_recipe']);
+
+            if (!empty($stockCheck['errors'])) {
                 $msg = 'No hay suficiente inventario para realizar la venta:';
-                foreach ($stockErrors as $err) {
+                foreach ($stockCheck['errors'] as $err) {
                     $msg .= " {$err['nombre']} (necesario: {$err['necesario']}, stock: {$err['stock']})";
                     $entity->setError('product_id', __("{$err['nombre']}: falta {$err['necesario']} {$err['unidad']}, hay {$err['stock']} {$err['unidad']}"));
                 }
@@ -282,11 +284,11 @@ class OrdersTable extends Table
     /**
      * Verifica stock suficiente para una receta
      *
-     * @return array<int, array{nombre: string, necesario: float, stock: float, unidad: string}>
+     * @return array{errors: array<int, array{nombre: string, necesario: float, stock: float, unidad: string}>, no_recipe: bool}
      */
     protected function _checkStock(int $productId, int $quantity): array
     {
-        $errors = [];
+        $result = ['errors' => [], 'no_recipe' => false];
         $productIngredientsTable = $this->getTableLocator()->get('ProductIngredients');
 
         $recipes = $productIngredientsTable->find()
@@ -296,8 +298,9 @@ class OrdersTable extends Table
 
         if ($recipes->isEmpty()) {
             Log::warning("STOCK CHECK: Producto ID {$productId} no tiene receta configurada");
+            $result['no_recipe'] = true;
 
-            return $errors;
+            return $result;
         }
 
         foreach ($recipes as $recipe) {
@@ -306,7 +309,7 @@ class OrdersTable extends Table
             $unit = $recipe->ingredient->unit;
 
             if ($stock < $needed) {
-                $errors[] = [
+                $result['errors'][] = [
                     'nombre' => $recipe->ingredient->name,
                     'necesario' => $needed,
                     'stock' => $stock,
@@ -315,7 +318,7 @@ class OrdersTable extends Table
             }
         }
 
-        return $errors;
+        return $result;
     }
 
     /**
