@@ -2,8 +2,9 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Order $order
- * @var string[]|\Cake\Collection\CollectionInterface $products
- * @var string[]|\Cake\Collection\CollectionInterface $deliveryDrivers
+ * @var \Cake\Collection\CollectionInterface|array<string> $products
+ * @var \Cake\Collection\CollectionInterface|array<string> $deliveryDrivers
+ * @var \Cake\Datasource\ResultSetInterface $deliveryDriversData
  */
 ?>
 <header class="mb-8 flex items-center justify-between">
@@ -46,7 +47,8 @@
             </div>
             <div>
                 <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Domiciliario</label>
-                <?= $this->Form->control('delivery_driver_id', ['options' => $deliveryDrivers, 'empty' => true, 'label' => false, 'class' => 'w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-orange-500']) ?>
+                <?= $this->Form->control('delivery_driver_id', ['options' => $deliveryDrivers, 'empty' => 'Seleccionar Repartidor...', 'label' => false, 'class' => 'w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-orange-500', 'id' => 'edit-delivery-driver']) ?>
+                <div id="edit-driver-info" class="hidden mt-2 p-3 bg-blue-50 rounded-xl border border-blue-200 text-xs font-bold text-blue-700 flex items-center gap-2"></div>
             </div>
         </div>
         
@@ -95,9 +97,29 @@ function renderEditAdicionales() {
 }
 
 renderEditAdicionales();
+
+var editDriversData = <?= json_encode($deliveryDriversData) ?>;
+var editDriverSelect = document.getElementById('edit-delivery-driver');
+var editDriverInfo = document.getElementById('edit-driver-info');
+
+function updateEditDriverInfo() {
+    var selectedId = editDriverSelect.value;
+    if (selectedId) {
+        var driver = editDriversData.find(function(d) { return d.id == selectedId; });
+        if (driver) {
+            editDriverInfo.innerHTML = '<i class="fa-solid fa-motorcycle"></i> ' + driver.full_name + ' <span class="text-blue-400 font-normal">| Tel: ' + driver.phone + '</span>';
+            editDriverInfo.classList.remove('hidden');
+        }
+    } else {
+        editDriverInfo.classList.add('hidden');
+    }
+}
+
+updateEditDriverInfo();
+editDriverSelect.addEventListener('change', updateEditDriverInfo);
 </script>
 
-<?php if ($isAdmin): ?>
+<?php if ($isAdmin) : ?>
 <div class="mt-10">
     <h3 class="text-xl font-black text-slate-800 uppercase mb-4 flex items-center gap-2">
         <i class="fa-solid fa-clock-rotate-left text-orange-500"></i> Historial de Cambios (Huella)
@@ -112,8 +134,8 @@ renderEditAdicionales();
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-200">
-                <?php if (!empty($order->order_logs)): ?>
-                    <?php foreach ($order->order_logs as $log): ?>
+                <?php if (!empty($order->order_logs)) : ?>
+                    <?php foreach ($order->order_logs as $log) : ?>
                         <tr>
                             <td class="p-4 text-slate-500 font-bold text-[11px] w-40">
                                 <?= $log->created->format('d/m/Y h:i A') ?>
@@ -128,7 +150,7 @@ renderEditAdicionales();
                             </td>
                         </tr>
                     <?php endforeach; ?>
-                <?php else: ?>
+                <?php else : ?>
                     <tr>
                         <td colspan="3" class="p-8 text-center text-slate-400 italic font-bold">
                             No hay modificaciones registradas para este pedido.

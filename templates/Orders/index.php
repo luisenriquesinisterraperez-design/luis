@@ -11,13 +11,13 @@ $user = $this->request->getAttribute('identity')->getOriginalData();
 $isRepartidor = ($user->role === 'repartidor');
 ?>
 
-<?php if (!$isRepartidor): ?>
+<?php if (!$isRepartidor) : ?>
     <header class="mb-8 flex items-center justify-between">
         <div>
             <h1 class="text-3xl font-black text-slate-800 tracking-tight uppercase">Registro de Ventas</h1>
             <p class="text-blue-600 font-bold uppercase text-xs tracking-widest">Control diario de pedidos</p>
         </div>
-        <?php if ($isAdmin): ?>
+        <?php if ($isAdmin) : ?>
             <?= $this->Html->link('<i class="fa-solid fa-shoe-prints mr-2"></i> Ver Auditoría (Huella)', ['controller' => 'OrderLogs', 'action' => 'index'], ['escape' => false, 'class' => 'bg-orange-100 text-orange-600 px-4 py-2 rounded-xl font-bold text-xs hover:bg-orange-200 transition-all']) ?>
         <?php endif; ?>
     </header>
@@ -50,7 +50,7 @@ $isRepartidor = ($user->role === 'repartidor');
                     ]) ?>
                     <i class="fa-solid fa-chevron-down absolute right-4 bottom-5 text-slate-300 pointer-events-none"></i>
                     <datalist id="phones-list">
-                        <?php foreach ($clients as $c): ?>
+                        <?php foreach ($clients as $c) : ?>
                             <option value="<?= h($c->phone) ?>">
                         <?php endforeach; ?>
                     </datalist>
@@ -66,7 +66,7 @@ $isRepartidor = ($user->role === 'repartidor');
                         'Nequi' => 'Nequi 🟣',
                         'Daviplata' => 'Daviplata 🔴',
                         'Cuenta' => 'Cuenta/Transf 🏦',
-                        'Crédito' => 'Crédito / Fiado 📝'
+                        'Crédito' => 'Crédito / Fiado 📝',
                     ], ['class' => 'w-full p-4 bg-slate-50 border rounded-2xl outline-none font-bold text-slate-700 focus:ring-2 focus:ring-blue-500', 'default' => 'Efectivo']) ?>
                 </div>
             </div>
@@ -75,7 +75,16 @@ $isRepartidor = ($user->role === 'repartidor');
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 pb-8 border-b border-slate-50">
                 <div id="venta-domiciliario-container">
                     <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Asignar Repartidor</label>
-                    <?= $this->Form->select('delivery_driver_id', $deliveryDrivers, ['empty' => 'Seleccionar Repartidor...', 'class' => 'w-full p-4 bg-slate-50 border rounded-2xl outline-none font-bold text-slate-700 focus:ring-2 focus:ring-blue-500 required-field', 'id' => 'delivery-driver']) ?>
+                    <div class="relative autocomplete-wrap" data-autocomplete="drivers">
+                        <input type="text" id="delivery-driver-search"
+                            placeholder="Buscar repartidor..."
+                            class="w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 autocomplete-input required-field"
+                            autocomplete="off">
+                        <i class="fa-solid fa-chevron-down absolute right-4 bottom-5 text-slate-300 pointer-events-none"></i>
+                        <ul class="autocomplete-dropdown hidden"></ul>
+                        <input type="hidden" name="delivery_driver_id" id="delivery-driver-id" value="">
+                    </div>
+                    <div id="driver-info" class="hidden mt-2 p-3 bg-blue-50 rounded-xl border border-blue-200 text-xs font-bold text-blue-700 flex items-center gap-2"></div>
                 </div>
                 <div id="venta-direccion-container">
                     <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Dirección</label>
@@ -147,7 +156,7 @@ $isRepartidor = ($user->role === 'repartidor');
                 <?= $this->Form->button(' CONFIRMAR Y FINALIZAR VENTA ', [
                     'id' => 'btn-submit-order',
                     'type' => 'button',
-                    'class' => 'btn-finalize w-full bg-green-600 text-white font-black rounded-3xl py-6 uppercase shadow-2xl hover:bg-green-700 transition-all text-xl tracking-widest active:scale-95 disabled:opacity-50 disabled:pointer-events-none'
+                    'class' => 'btn-finalize w-full bg-green-600 text-white font-black rounded-3xl py-6 uppercase shadow-2xl hover:bg-green-700 transition-all text-xl tracking-widest active:scale-95 disabled:opacity-50 disabled:pointer-events-none',
                 ]) ?>
             </div>
         <?= $this->Form->end() ?>
@@ -177,6 +186,7 @@ $isRepartidor = ($user->role === 'repartidor');
         // Datos para autocompletado
         const clientsData = <?= json_encode($clients) ?>;
         const productsData = <?= json_encode($products) ?>;
+        const deliveryDriversData = <?= json_encode($deliveryDriversData) ?>;
         const adicionalesData = <?= json_encode($adicionales ?? []) ?>;
         let cartItems = [];
 
@@ -335,6 +345,26 @@ $isRepartidor = ($user->role === 'repartidor');
             Object.entries(productsData).map(([id, name]) => ({ label: name, id: id })),
             function(item) {
                 prodIdHidden.value = item ? item.id : '';
+            }
+        );
+
+        // === AUTOCOMPLETADO DE REPARTIDORES ===
+        setupAutocomplete(
+            document.querySelector('[data-autocomplete="drivers"]'),
+            deliveryDriversData.map(function(d) {
+                return { label: d.full_name, phone: d.phone, name: d.name, last_name: d.last_name, id: d.id };
+            }),
+            function(item) {
+                var driverIdInput = document.getElementById('delivery-driver-id');
+                var driverInfo = document.getElementById('driver-info');
+                if (item) {
+                    driverIdInput.value = item.id;
+                    driverInfo.innerHTML = '<i class="fa-solid fa-motorcycle"></i> ' + item.label + ' <span class="text-blue-400 font-normal">| Tel: ' + item.phone + '</span>';
+                    driverInfo.classList.remove('hidden');
+                } else {
+                    driverIdInput.value = '';
+                    driverInfo.classList.add('hidden');
+                }
             }
         );
 
@@ -580,14 +610,14 @@ select.required-field.field-filled {
     50% { box-shadow: 0 0 35px -5px rgba(16, 185, 129, 0.7); transform: scale(1.01); }
 }
 </style>
-<?php else: ?>
+<?php else : ?>
     <header class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
             <h1 class="text-3xl font-black text-slate-800 tracking-tight uppercase">Mis Entregas Asignadas</h1>
             <p class="text-blue-600 font-bold uppercase text-xs tracking-widest italic">Gestiona tus pedidos en tiempo real</p>
         </div>
         
-        <?php if (isset($driverEarnings)): ?>
+        <?php if (isset($driverEarnings)) : ?>
             <div class="bg-slate-950 text-white p-4 rounded-[2rem] shadow-2xl flex items-center gap-4 border border-blue-500/20">
                 <div class="bg-blue-600 p-2 w-10 h-10 rounded-xl flex items-center justify-center">
                     <i class="fa-solid fa-sack-dollar text-white"></i>
@@ -609,7 +639,7 @@ select.required-field.field-filled {
                     <th class="p-5">Producto</th>
                     <th class="p-5">Cliente / Datos</th>
                     <th class="p-5">Tipo / Pago</th>
-                    <?php if ($isAdmin): ?>
+                    <?php if ($isAdmin) : ?>
                         <th class="p-5">Total</th>
                     <?php endif; ?>
                     <th class="p-5">Fecha y Hora</th>
@@ -617,7 +647,7 @@ select.required-field.field-filled {
                 </tr>
             </thead>
             <tbody class="divide-y text-sm">
-                <?php 
+                <?php
                 $groupedOrders = [];
                 foreach ($orders as $order) {
                     $groupId = $order->order_group_id ?: 'SINGLE-' . $order->id;
@@ -625,26 +655,26 @@ select.required-field.field-filled {
                         $groupedOrders[$groupId] = [
                             'info' => $order,
                             'items' => [],
-                            'total' => 0
+                            'total' => 0,
                         ];
                     }
                     $groupedOrders[$groupId]['items'][] = $order;
                     $groupedOrders[$groupId]['total'] += $order->total;
                 }
 
-                foreach ($groupedOrders as $groupId => $group): 
+                foreach ($groupedOrders as $groupId => $group) :
                     $mainOrder = $group['info'];
                     $subtotalProductos = 0;
                     $envioUnico = 0;
                     foreach ($group['items'] as $item) {
-                        $subtotalProductos += ($item->total - $item->shipping_cost);
+                        $subtotalProductos += $item->total - $item->shipping_cost;
                         $envioUnico += $item->shipping_cost;
                     }
-                ?>
+                    ?>
                 <tr class="hover:bg-orange-50 transition-colors">
                     <td class="p-4">
                         <div class="space-y-1">
-                            <?php foreach ($group['items'] as $item): ?>
+                            <?php foreach ($group['items'] as $item) : ?>
                                 <div class="flex items-center gap-2">
                                     <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-black"><?= $item->quantity ?>x</span>
                                     <span class="font-bold text-slate-700 text-xs"><?= $item->hasValue('product') ? h($item->product->name) : '---' ?></span>
@@ -656,13 +686,13 @@ select.required-field.field-filled {
                         <div class="font-bold text-slate-700 text-xs"><?= h($mainOrder->customer_name) ?></div>
                         <div class="text-[10px] text-slate-500 mt-0.5">
                             <i class="fa-solid fa-phone text-[9px] mr-1"></i> <?= h($mainOrder->customer_phone) ?> 
-                            <?php if ($mainOrder->customer_address): ?>
+                            <?php if ($mainOrder->customer_address) : ?>
                                 <br><span class="text-blue-500"><i class="fa-solid fa-map-marker-alt text-[9px] mr-1 mt-1"></i> <?= h($mainOrder->customer_address) ?></span>
                             <?php endif; ?>
-                            <?php if ($mainOrder->hasValue('delivery_driver')): ?>
+                            <?php if ($mainOrder->hasValue('delivery_driver')) : ?>
                                 <br><span class="text-orange-600 font-bold"><i class="fa-solid fa-motorcycle text-[9px] mr-1 mt-1"></i> <?= h($mainOrder->delivery_driver->full_name) ?></span>
                             <?php endif; ?>
-                            <?php 
+                            <?php
                             $allAdicionales = [];
                             foreach ($group['items'] as $item) {
                                 if (!empty($item->order_adicionales)) {
@@ -671,27 +701,27 @@ select.required-field.field-filled {
                                     }
                                 }
                             }
-                            if (!empty($allAdicionales)): ?>
+                            if (!empty($allAdicionales)) : ?>
                                 <br><span class="text-purple-600 font-bold mt-1 flex items-center gap-1"><i class="fa-solid fa-cubes text-[9px]"></i> Adicionales:</span>
                                 <div class="flex flex-wrap gap-1 mt-1">
-                                    <?php foreach ($allAdicionales as $oa): ?>
+                                    <?php foreach ($allAdicionales as $oa) : ?>
                                         <span class="bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded text-[8px] font-bold"><?= h($oa->name) ?> ($<?= number_format((float)$oa->price, 0) ?>)</span>
                                     <?php endforeach; ?>
                                 </div>
-                            <?php else: ?>
+                            <?php else : ?>
                                 <br><span class="text-slate-400 text-[9px] italic">N/A</span>
                             <?php endif; ?>
                         </div>
                     </td>
                     <td class="p-4 text-xs">
                         <div class="mb-2">
-                            <?php 
+                            <?php
                             $statusColors = [
                                 'recibido' => 'bg-slate-100 text-slate-600',
                                 'pendiente' => 'bg-yellow-100 text-yellow-700 border border-yellow-300',
                                 'en cocina' => 'bg-orange-100 text-orange-600',
                                 'en camino' => 'bg-blue-100 text-blue-600',
-                                'entregado' => 'bg-green-100 text-green-600'
+                                'entregado' => 'bg-green-100 text-green-600',
                             ];
                             $color = $statusColors[$mainOrder->status] ?? 'bg-slate-100 text-slate-600';
                             ?>
@@ -702,15 +732,15 @@ select.required-field.field-filled {
 
                         <!-- Botones de Flujo (aplican a todo el grupo) -->
                         <div class="flex gap-1 justify-center">
-                            <?php if ($mainOrder->status === 'recibido'): ?>
+                            <?php if ($mainOrder->status === 'recibido') : ?>
                                 <?= $this->Form->create(null, ['url' => ['action' => 'updateStatusGroup', $groupId, 'en cocina'], 'class' => 'inline']) ?>
                                     <button type="submit" class="bg-orange-500 text-white p-3 rounded-lg hover:bg-orange-600 text-sm" title="Mover todo a Cocina"><i class="fa-solid fa-fire-burner"></i></button>
                                 <?= $this->Form->end() ?>
-                            <?php elseif ($mainOrder->status === 'en cocina'): ?>
+                            <?php elseif ($mainOrder->status === 'en cocina') : ?>
                                 <?= $this->Form->create(null, ['url' => ['action' => 'updateStatusGroup', $groupId, 'en camino'], 'class' => 'inline']) ?>
                                     <button type="submit" class="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 text-sm" title="Enviar todo"><i class="fa-solid fa-motorcycle"></i></button>
                                 <?= $this->Form->end() ?>
-                            <?php elseif ($mainOrder->status === 'en camino'): ?>
+                            <?php elseif ($mainOrder->status === 'en camino') : ?>
                                 <?= $this->Form->create(null, ['url' => ['action' => 'updateStatusGroup', $groupId, 'entregado'], 'class' => 'inline']) ?>
                                     <button type="submit" class="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 text-sm" title="Entregar todo"><i class="fa-solid fa-house-circle-check"></i></button>
                                 <?= $this->Form->end() ?>
@@ -725,13 +755,13 @@ select.required-field.field-filled {
                             <?= h($mainOrder->payment_method) ?>
                         </span>
                     </td>
-                    <?php if ($isAdmin): ?>
+                    <?php if ($isAdmin) : ?>
                         <td class="p-4">
                             <div class="text-[10px] text-slate-400 font-bold">Prod: $<?= number_format($subtotalProductos, 0) ?></div>
-                            <?php if ($envioUnico > 0): ?>
+                            <?php if ($envioUnico > 0) : ?>
                                 <div class="text-[10px] text-blue-500 font-bold">Envío: $<?= number_format($envioUnico, 0) ?></div>
                             <?php endif; ?>
-                            <?php if ($mainOrder->hasValue('delivery_driver')): ?>
+                            <?php if ($mainOrder->hasValue('delivery_driver')) : ?>
                                 <div class="text-[10px] text-orange-600 font-bold">Repartidor recauda: $<?= number_format($subtotalProductos + $envioUnico, 0) ?></div>
                             <?php endif; ?>
                             <div class="font-black text-orange-600 text-sm mt-1">$<?= number_format($subtotalProductos + $envioUnico, 0) ?></div>
@@ -739,13 +769,13 @@ select.required-field.field-filled {
                     <?php endif; ?>
                     <td class="p-4 text-[10px] text-slate-500 font-bold"><?= $mainOrder->created->format('d/m/Y h:i A') ?></td>
                     <td class="p-4 text-right flex justify-end gap-3 mt-1">
-                        <?php if ($isAdmin || $isStaff): ?>
+                        <?php if ($isAdmin || $isStaff) : ?>
                             <?= $this->Html->link('<i class="fa-solid fa-print"></i>', ['action' => 'printTicketGroup', $groupId], ['escape' => false, 'target' => '_blank', 'class' => 'p-2 inline-block text-blue-500 hover:text-blue-700', 'title' => 'Imprimir Ticket Grupo']) ?>
                             <div class="flex flex-col gap-1">
-                                <?php foreach ($group['items'] as $item): ?>
+                                <?php foreach ($group['items'] as $item) : ?>
                                     <div class="flex gap-2 items-center justify-end">
                                         <span class="text-[8px] text-slate-400 font-bold">Item #<?= $item->id ?></span>
-                                        <?php if ($isAdmin || $isStaff): ?>
+                                        <?php if ($isAdmin || $isStaff) : ?>
                                             <?= $this->Html->link('<i class="fa-solid fa-pen"></i>', ['action' => 'edit', $item->id], ['escape' => false, 'class' => 'p-2 inline-block text-slate-400 hover:text-slate-600 text-[10px]']) ?>
                                             <?= $this->Form->postLink('<i class="fa-solid fa-trash"></i>', ['action' => 'delete', $item->id], ['confirm' => __('¿Eliminar item?'), 'escape' => false, 'class' => 'p-2 inline-block text-red-200 hover:text-red-500 text-[10px]']) ?>
                                         <?php endif; ?>

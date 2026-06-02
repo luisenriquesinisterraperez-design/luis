@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Cake\I18n\DateTime;
+use Cake\Log\Log;
+
 class OrdersController extends AppController
 {
     public function index()
@@ -21,7 +24,7 @@ class OrdersController extends AppController
             ->contain(['Products', 'DeliveryDrivers', 'OrderLogs', 'OrderAdicionales'])
             ->orderBy([
                 'Orders.created' => 'DESC',
-                'Orders.id' => 'DESC'
+                'Orders.id' => 'DESC',
             ]);
 
         if (!$isAdmin) {
@@ -29,9 +32,13 @@ class OrdersController extends AppController
                   ->andWhere(['Orders.status !=' => 'cancelado']);
         }
 
-        if ($startDate) $query->where(['Orders.created >=' => $startDate . ' 00:00:00']);
-        if ($endDate) $query->where(['Orders.created <=' => $endDate . ' 23:59:59']);
-            
+        if ($startDate) {
+            $query->where(['Orders.created >=' => $startDate . ' 00:00:00']);
+        }
+        if ($endDate) {
+            $query->where(['Orders.created <=' => $endDate . ' 23:59:59']);
+        }
+
         if ($isRepartidor) {
             $query->where(['Orders.delivery_driver_id' => $user->delivery_driver_id]);
             $this->paginate['limit'] = 5;
@@ -41,7 +48,7 @@ class OrdersController extends AppController
                 ->select(['total' => $qEarned->func()->sum('shipping_cost')])
                 ->disableHydration()
                 ->first()['total'] ?? 0;
-            
+
             $this->set('driverEarnings', (float)$driverEarnings);
         } elseif (!$isAdmin) {
             $this->paginate['limit'] = 10;
@@ -50,9 +57,10 @@ class OrdersController extends AppController
         }
         $orders = $this->paginate($query);
         $products = $this->Orders->Products->find('list', limit: 200)->all();
-        
+
         $driversTable = $this->fetchTable('DeliveryDrivers');
         $deliveryDrivers = $driversTable->find('list', keyField: 'id', valueField: 'full_name', limit: 200)->all();
+        $deliveryDriversData = $driversTable->find()->all();
 
         $clients = $this->fetchTable('Clients')->find()->all();
 
@@ -64,17 +72,18 @@ class OrdersController extends AppController
             })
             ->toList();
 
-        $this->set(compact('orders', 'products', 'deliveryDrivers', 'clients', 'isAdmin', 'startDate', 'endDate', 'adicionales'));
+        $this->set(compact('orders', 'products', 'deliveryDrivers', 'deliveryDriversData', 'clients', 'isAdmin', 'startDate', 'endDate', 'adicionales'));
     }
 
     public function add()
     {
         $this->request->allowMethod(['post']);
         $data = $this->request->getData();
-        
+
         $items = $data['items'] ?? [];
         if (empty($items)) {
             $this->Flash->error(__('Debe agregar al menos un producto al pedido.'));
+
             return $this->redirect(['action' => 'index']);
         }
 
@@ -82,7 +91,7 @@ class OrdersController extends AppController
         $successCount = 0;
         $firstOrder = null;
         $totalOrderAmount = 0;
-        
+
         $commonData = [
             'order_group_id' => $orderGroupId,
             'type' => $data['type'],
@@ -91,7 +100,7 @@ class OrdersController extends AppController
             'customer_address' => $data['customer_address'] ?? '',
             'payment_method' => $data['payment_method'],
             'delivery_driver_id' => $data['delivery_driver_id'] ?? null,
-            'status' => 'recibido'
+            'status' => 'recibido',
         ];
 
         foreach ($items as $index => $item) {
@@ -99,7 +108,7 @@ class OrdersController extends AppController
             $orderData = array_merge($commonData, [
                 'product_id' => $item['product_id'],
                 'quantity' => $item['quantity'],
-                'shipping_cost' => ($index === 0) ? (($data['shipping_cost'] ?? '') !== '' ? $data['shipping_cost'] : 0) : 0
+                'shipping_cost' => $index === 0 ? (($data['shipping_cost'] ?? '') !== '' ? $data['shipping_cost'] : 0) : 0,
             ]);
 
             $adicionalIds = $item['adicional_ids'] ?? [];
@@ -110,14 +119,16 @@ class OrdersController extends AppController
             $order = $this->Orders->patchEntity($order, $orderData);
             if ($this->Orders->save($order, ['adicional_ids' => $adicionalIds])) {
                 $successCount++;
-                if (!$firstOrder) $firstOrder = $order;
+                if (!$firstOrder) {
+                    $firstOrder = $order;
+                }
                 $totalOrderAmount += $order->total;
 
                 if ($order->get('no_recipe_warning')) {
                     $this->Flash->warning(__('⚠ Producto #' . $item['product_id'] . ' no tiene receta. No se descontó inventario.'));
                 }
             } else {
-                \Cake\Log\Log::error("ADD ORDER ITEM FAILED. Errors: " . print_r($order->getErrors(), true));
+                Log::error('ADD ORDER ITEM FAILED. Errors: ' . print_r($order->getErrors(), true));
                 $itemErrors = $order->getErrors();
                 if (!empty($itemErrors)) {
                     $flat = [];
@@ -140,7 +151,7 @@ class OrdersController extends AppController
                     $client = $clientsTable->newEntity([
                         'full_name' => $data['customer_name'],
                         'phone' => $data['customer_phone'],
-                        'address' => $data['customer_address'] ?? ''
+                        'address' => $data['customer_address'] ?? '',
                     ]);
                     $clientsTable->save($client);
                 }
@@ -150,12 +161,12 @@ class OrdersController extends AppController
                     'order_id' => $firstOrder->id,
                     'amount' => $totalOrderAmount,
                     'description' => 'Pedido #' . $orderGroupId . ' (Consolidado)',
-                    'status' => 'pendiente'
+                    'status' => 'pendiente',
                 ]);
                 if ($accountsReceivableTable->save($account)) {
                     $this->Orders->updateAll(
                         ['accounts_receivable_id' => $account->id],
-                        ['order_group_id' => $orderGroupId]
+                        ['order_group_id' => $orderGroupId],
                     );
                 }
                 $this->Flash->success(__('Venta registrada ({0} productos) y cargada a Crédito.', $successCount));
@@ -178,7 +189,7 @@ class OrdersController extends AppController
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
             $order = $this->Orders->patchEntity($order, $data);
-            
+
             // Detectar si el método de pago cambió a Crédito ANTES de guardar
             $isChangingToCredit = $order->isDirty('payment_method') && $order->payment_method === 'Crédito';
 
@@ -189,7 +200,7 @@ class OrdersController extends AppController
                 'shipping_cost' => 'Envío',
                 'customer_name' => 'Cliente',
                 'payment_method' => 'Método Pago',
-                'status' => 'Estado'
+                'status' => 'Estado',
             ];
 
             $changes = [];
@@ -197,12 +208,12 @@ class OrdersController extends AppController
                 if ($order->isDirty($field)) {
                     $oldValue = $originalData[$field] ?? 'N/A';
                     $newValue = $order->get($field);
-                    
+
                     if ($field === 'product_id') {
                         $oldValue = $originalProductName;
                         $newValue = $this->Orders->Products->get($newValue)->name;
                     }
-                    
+
                     if ($oldValue != $newValue) {
                         $changes[] = "{$label}: de '{$oldValue}' a '{$newValue}'";
                     }
@@ -225,7 +236,7 @@ class OrdersController extends AppController
                         $client = $clientsTable->newEntity([
                             'full_name' => $order->customer_name,
                             'phone' => $order->customer_phone,
-                            'address' => $order->customer_address ?? ''
+                            'address' => $order->customer_address ?? '',
                         ]);
                         $clientsTable->save($client);
                     }
@@ -235,7 +246,7 @@ class OrdersController extends AppController
                         'order_id' => $order->id,
                         'amount' => $order->total,
                         'description' => 'Pedido #' . ($order->order_group_id ?: $order->id) . ' (Editado)',
-                        'status' => 'pendiente'
+                        'status' => 'pendiente',
                     ]);
                     if ($accountsReceivableTable->save($account)) {
                         $order->accounts_receivable_id = $account->id;
@@ -247,22 +258,24 @@ class OrdersController extends AppController
                     $logsTable = $this->fetchTable('OrderLogs');
                     $identity = $this->request->getAttribute('identity');
                     $user = $identity ? $identity->getOriginalData() : null;
-                    
+
                     $log = $logsTable->newEntity([
                         'order_id' => $order->id,
                         'user_id' => $user ? $user->id : 1,
-                        'modification_details' => "Modificado por " . ($user ? $user->username : 'Sistema') . ". Cambios: " . implode(", ", $changes)
+                        'modification_details' => 'Modificado por ' . ($user ? $user->username : 'Sistema') . '. Cambios: ' . implode(', ', $changes),
                     ]);
                     $logsTable->save($log);
                 }
 
                 $this->Flash->success(__('El pedido ha sido actualizado.'));
+
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('No se pudo actualizar el pedido.'));
         }
         $products = $this->Orders->Products->find('list', limit: 200)->all();
         $deliveryDrivers = $this->Orders->DeliveryDrivers->find('list', limit: 200, keyField: 'id', valueField: 'full_name')->all();
+        $deliveryDriversData = $this->Orders->DeliveryDrivers->find()->all();
 
         $adicionales = $this->fetchTable('Adicionales')->find()
             ->orderBy(['name' => 'ASC'])
@@ -279,7 +292,7 @@ class OrdersController extends AppController
             }
         }
 
-        $this->set(compact('order', 'products', 'deliveryDrivers', 'adicionales', 'selectedAdicionalIds'));
+        $this->set(compact('order', 'products', 'deliveryDrivers', 'deliveryDriversData', 'adicionales', 'selectedAdicionalIds'));
     }
 
     public function updateStatusGroup($groupId = null, $newStatus = null)
@@ -301,9 +314,11 @@ class OrdersController extends AppController
         foreach ($orders as $order) {
             $order->status = $newStatus;
             if ($newStatus === 'entregado') {
-                $order->delivered_at = new \Cake\I18n\DateTime();
+                $order->delivered_at = new DateTime();
             }
-            if (!$this->Orders->save($order, ['user' => $user])) $success = false;
+            if (!$this->Orders->save($order, ['user' => $user])) {
+                $success = false;
+            }
         }
 
         if ($success) {
@@ -318,7 +333,7 @@ class OrdersController extends AppController
     public function cancel($id = null)
     {
         $this->request->allowMethod(['post', 'put']);
-        
+
         $identity = $this->request->getAttribute('identity');
         $user = $identity ? $identity->getOriginalData() : null;
         $isAdmin = ($user && ($user->role === 'admin' || !empty($user->is_superadmin) || $user->role === 'admin_empresa'));
@@ -326,6 +341,7 @@ class OrdersController extends AppController
 
         if (!$isAdmin && !$isStaff) {
             $this->Flash->error(__('No tienes permiso para cancelar pedidos.'));
+
             return $this->redirect(['action' => 'index']);
         }
 
@@ -333,19 +349,20 @@ class OrdersController extends AppController
 
         if ($order->status === 'cancelado') {
             $this->Flash->warning(__('Este pedido ya ha sido cancelado.'));
+
             return $this->redirect(['action' => 'index']);
         }
 
         // Update status to cancelled
         $order->status = 'cancelado';
-        
+
         // Create a log entry for cancellation
         $logsTable = $this->fetchTable('OrderLogs');
         $log = $logsTable->newEntity([
             'order_id' => $order->id,
             'user_id' => $user ? $user->id : null,
-            'modification_details' => "Pedido cancelado por " . ($user ? $user->username : 'Sistema') . ".",
-            'created' => new \Cake\I18n\DateTime()
+            'modification_details' => 'Pedido cancelado por ' . ($user ? $user->username : 'Sistema') . '.',
+            'created' => new DateTime(),
         ]);
 
         if ($this->Orders->save($order, ['user' => $user]) && $logsTable->save($log)) {
@@ -376,11 +393,11 @@ class OrdersController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $order = $this->Orders->get($id, contain: ['Products']);
-        
+
         $identity = $this->request->getAttribute('identity');
         $user = $identity ? $identity->getOriginalData() : null;
         $orderId = $order->id;
-        $details = "ELIMINACIÓN DEFINITIVA: El usuario " . ($user ? $user->username : 'Sistema') . " borró el pedido #" . $orderId . " de " . $order->product->name . " (Cliente: " . $order->customer_name . ")";
+        $details = 'ELIMINACIÓN DEFINITIVA: El usuario ' . ($user ? $user->username : 'Sistema') . ' borró el pedido #' . $orderId . ' de ' . $order->product->name . ' (Cliente: ' . $order->customer_name . ')';
 
         if ($this->Orders->delete($order)) {
             $this->logAudit($user ? $user->id : 1, $details, $orderId);
