@@ -71,6 +71,22 @@ $isRepartidor = ($user->role === 'repartidor');
                 </div>
             </div>
 
+            <!-- Campos de Domicilio (visibles solo cuando tipo = domicilio) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 pb-8 border-b border-slate-50">
+                <div id="venta-direccion-container">
+                    <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Dirección</label>
+                    <?= $this->Form->text('customer_address', ['placeholder' => 'Calle, Barrio...', 'class' => 'w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 required-field', 'id' => 'customer-address']) ?>
+                </div>
+                <div id="venta-envio-container">
+                    <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Costo de Envío ($)</label>
+                    <?= $this->Form->number('shipping_cost', ['class' => 'w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 zero-empty required-field', 'placeholder' => '0', 'min' => 0]) ?>
+                </div>
+                <div id="venta-domiciliario-container">
+                    <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Asignar Repartidor</label>
+                    <?= $this->Form->select('delivery_driver_id', $deliveryDrivers, ['empty' => 'Seleccionar Repartidor...', 'class' => 'w-full p-4 bg-slate-50 border rounded-2xl outline-none font-bold text-slate-700 focus:ring-2 focus:ring-blue-500 required-field', 'id' => 'delivery-driver']) ?>
+                </div>
+            </div>
+
             <!-- Selector de Productos (CARRITO) -->
             <div class="bg-slate-50 p-6 rounded-[2rem] mb-8 cart-required">
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
@@ -124,22 +140,6 @@ $isRepartidor = ($user->role === 'repartidor');
                             </tr>
                         </tbody>
                     </table>
-                </div>
-            </div>
-
-            <!-- Configuración Final -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div id="venta-direccion-container">
-                    <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Dirección</label>
-                    <?= $this->Form->text('customer_address', ['placeholder' => 'Calle, Barrio...', 'class' => 'w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 required-field', 'id' => 'customer-address']) ?>
-                </div>
-                <div id="venta-envio-container">
-                    <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Costo de Envío ($)</label>
-                    <?= $this->Form->number('shipping_cost', ['class' => 'w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 zero-empty required-field', 'placeholder' => '0', 'min' => 0]) ?>
-                </div>
-                <div id="venta-domiciliario-container">
-                    <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Asignar Repartidor</label>
-                    <?= $this->Form->select('delivery_driver_id', $deliveryDrivers, ['empty' => 'Seleccionar Repartidor...', 'class' => 'w-full p-4 bg-slate-50 border rounded-2xl outline-none font-bold text-slate-700 focus:ring-2 focus:ring-blue-500 required-field', 'id' => 'delivery-driver']) ?>
                 </div>
             </div>
 
