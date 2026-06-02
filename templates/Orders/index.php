@@ -177,6 +177,7 @@ $isRepartidor = ($user->role === 'repartidor');
         // Datos para autocompletado
         const clientsData = <?= json_encode($clients) ?>;
         const productsData = <?= json_encode($products) ?>;
+        const repartidoresData = <?= json_encode($repartidoresData) ?>;
         const adicionalesData = <?= json_encode($adicionales ?? []) ?>;
         let cartItems = [];
 
@@ -482,6 +483,31 @@ $isRepartidor = ($user->role === 'repartidor');
         tipoSelect.addEventListener('change', toggleDomicilioFields);
         toggleDomicilioFields();
         renderCart();
+
+        // === AUTOCOMPLETAR DATOS DEL CLIENTE AL SELECCIONAR REPARTIDOR ===
+        var driverSelect = document.getElementById('delivery-driver');
+        if (driverSelect) {
+            driverSelect.addEventListener('change', function() {
+                var selectedId = this.value;
+                var repartidor = repartidoresData.find(function(r) {
+                    return r.delivery_driver_id == selectedId;
+                });
+                if (repartidor) {
+                    if (repartidor.customer_name) {
+                        customerNameInput.value = repartidor.customer_name;
+                        customerNameInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                    if (repartidor.customer_phone) {
+                        customerPhoneInput.value = repartidor.customer_phone;
+                        customerPhoneInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                    if (repartidor.customer_address) {
+                        customerAddressInput.value = repartidor.customer_address;
+                        customerAddressInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                }
+            });
+        }
 
         // === HIGHLIGHT CAMPOS REQUERIDOS ===
         document.querySelectorAll('.required-field').forEach(function(field) {

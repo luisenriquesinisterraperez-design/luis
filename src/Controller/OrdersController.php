@@ -61,6 +61,20 @@ class OrdersController extends AppController
         $driversTable = $this->fetchTable('DeliveryDrivers');
         $deliveryDrivers = $driversTable->find('list', keyField: 'id', valueField: 'full_name', limit: 200)->all();
 
+        $repartidoresData = $this->fetchTable('Users')->find()
+            ->contain(['Clients'])
+            ->where(['Users.role' => 'repartidor', 'Users.delivery_driver_id IS NOT NULL'])
+            ->all()
+            ->map(function ($user) {
+                return [
+                    'delivery_driver_id' => $user->delivery_driver_id,
+                    'customer_name' => $user->client ? $user->client->full_name : $user->username,
+                    'customer_phone' => $user->client ? $user->client->phone : '',
+                    'customer_address' => $user->client ? $user->client->address : '',
+                ];
+            })
+            ->toList();
+
         $clients = $this->fetchTable('Clients')->find()->all();
 
         $adicionales = $this->fetchTable('Adicionales')->find()
@@ -71,7 +85,7 @@ class OrdersController extends AppController
             })
             ->toList();
 
-        $this->set(compact('orders', 'products', 'deliveryDrivers', 'clients', 'isAdmin', 'startDate', 'endDate', 'adicionales'));
+        $this->set(compact('orders', 'products', 'deliveryDrivers', 'repartidoresData', 'clients', 'isAdmin', 'startDate', 'endDate', 'adicionales'));
     }
 
     public function add()
