@@ -60,7 +60,6 @@ class OrdersController extends AppController
 
         $driversTable = $this->fetchTable('DeliveryDrivers');
         $deliveryDrivers = $driversTable->find('list', keyField: 'id', valueField: 'full_name', limit: 200)->all();
-        $deliveryDriversData = $driversTable->find()->all();
 
         $clients = $this->fetchTable('Clients')->find()->all();
 
@@ -72,7 +71,7 @@ class OrdersController extends AppController
             })
             ->toList();
 
-        $this->set(compact('orders', 'products', 'deliveryDrivers', 'deliveryDriversData', 'clients', 'isAdmin', 'startDate', 'endDate', 'adicionales'));
+        $this->set(compact('orders', 'products', 'deliveryDrivers', 'clients', 'isAdmin', 'startDate', 'endDate', 'adicionales'));
     }
 
     public function add()
@@ -275,7 +274,6 @@ class OrdersController extends AppController
         }
         $products = $this->Orders->Products->find('list', limit: 200)->all();
         $deliveryDrivers = $this->Orders->DeliveryDrivers->find('list', limit: 200, keyField: 'id', valueField: 'full_name')->all();
-        $deliveryDriversData = $this->Orders->DeliveryDrivers->find()->all();
 
         $adicionales = $this->fetchTable('Adicionales')->find()
             ->orderBy(['name' => 'ASC'])
@@ -292,7 +290,7 @@ class OrdersController extends AppController
             }
         }
 
-        $this->set(compact('order', 'products', 'deliveryDrivers', 'deliveryDriversData', 'adicionales', 'selectedAdicionalIds'));
+        $this->set(compact('order', 'products', 'deliveryDrivers', 'adicionales', 'selectedAdicionalIds'));
     }
 
     public function updateStatusGroup($groupId = null, $newStatus = null)

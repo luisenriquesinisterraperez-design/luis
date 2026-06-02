@@ -3,6 +3,7 @@
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\User $user
  * @var mixed $deliveryDrivers
+ * @var mixed $deliveryDriversData
  */
 ?>
 <header class="mb-8 flex items-center justify-between">
@@ -62,6 +63,9 @@
         const roleSelect = document.getElementById('role-select');
         const driverDiv = document.getElementById('driver-link-div');
         const clientDiv = document.getElementById('client-link-div');
+        const driverSelect = document.querySelector('[name="delivery_driver_id"]');
+        const usernameInput = document.querySelector('[name="username"]');
+        const driversData = <?= json_encode($deliveryDriversData) ?>;
 
         function toggleRoles() {
             driverDiv.classList.add('hidden');
@@ -74,7 +78,22 @@
             }
         }
 
+        function autocompleteUsername() {
+            var selectedId = driverSelect ? driverSelect.value : '';
+            if (selectedId && driversData) {
+                var driver = driversData.find(function(d) { return d.id == selectedId; });
+                if (driver && driver.full_name) {
+                    usernameInput.value = driver.full_name;
+                    usernameInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }
+        }
+
         roleSelect.addEventListener('change', toggleRoles);
-        toggleRoles(); 
+        toggleRoles();
+
+        if (driverSelect) {
+            driverSelect.addEventListener('change', autocompleteUsername);
+        }
     });
 </script>

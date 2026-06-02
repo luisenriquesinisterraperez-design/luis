@@ -75,16 +75,7 @@ $isRepartidor = ($user->role === 'repartidor');
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 pb-8 border-b border-slate-50">
                 <div id="venta-domiciliario-container">
                     <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Asignar Repartidor</label>
-                    <div class="relative autocomplete-wrap" data-autocomplete="drivers">
-                        <input type="text" id="delivery-driver-search"
-                            placeholder="Buscar repartidor..."
-                            class="w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 autocomplete-input required-field"
-                            autocomplete="off">
-                        <i class="fa-solid fa-chevron-down absolute right-4 bottom-5 text-slate-300 pointer-events-none"></i>
-                        <ul class="autocomplete-dropdown hidden"></ul>
-                        <input type="hidden" name="delivery_driver_id" id="delivery-driver-id" value="">
-                    </div>
-                    <div id="driver-info" class="hidden mt-2 p-3 bg-blue-50 rounded-xl border border-blue-200 text-xs font-bold text-blue-700 flex items-center gap-2"></div>
+                    <?= $this->Form->select('delivery_driver_id', $deliveryDrivers, ['empty' => 'Seleccionar Repartidor...', 'class' => 'w-full p-4 bg-slate-50 border rounded-2xl outline-none font-bold text-slate-700 focus:ring-2 focus:ring-blue-500 required-field', 'id' => 'delivery-driver']) ?>
                 </div>
                 <div id="venta-direccion-container">
                     <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Dirección</label>
@@ -186,7 +177,6 @@ $isRepartidor = ($user->role === 'repartidor');
         // Datos para autocompletado
         const clientsData = <?= json_encode($clients) ?>;
         const productsData = <?= json_encode($products) ?>;
-        const deliveryDriversData = <?= json_encode($deliveryDriversData) ?>;
         const adicionalesData = <?= json_encode($adicionales ?? []) ?>;
         let cartItems = [];
 
@@ -345,26 +335,6 @@ $isRepartidor = ($user->role === 'repartidor');
             Object.entries(productsData).map(([id, name]) => ({ label: name, id: id })),
             function(item) {
                 prodIdHidden.value = item ? item.id : '';
-            }
-        );
-
-        // === AUTOCOMPLETADO DE REPARTIDORES ===
-        setupAutocomplete(
-            document.querySelector('[data-autocomplete="drivers"]'),
-            deliveryDriversData.map(function(d) {
-                return { label: d.full_name, phone: d.phone, name: d.name, last_name: d.last_name, id: d.id };
-            }),
-            function(item) {
-                var driverIdInput = document.getElementById('delivery-driver-id');
-                var driverInfo = document.getElementById('driver-info');
-                if (item) {
-                    driverIdInput.value = item.id;
-                    driverInfo.innerHTML = '<i class="fa-solid fa-motorcycle"></i> ' + item.label + ' <span class="text-blue-400 font-normal">| Tel: ' + item.phone + '</span>';
-                    driverInfo.classList.remove('hidden');
-                } else {
-                    driverIdInput.value = '';
-                    driverInfo.classList.add('hidden');
-                }
             }
         );
 

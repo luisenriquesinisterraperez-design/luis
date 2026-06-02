@@ -2,9 +2,8 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Order $order
- * @var \Cake\Collection\CollectionInterface|array<string> $products
- * @var \Cake\Collection\CollectionInterface|array<string> $deliveryDrivers
- * @var \Cake\Datasource\ResultSetInterface $deliveryDriversData
+ * @var string[]|\Cake\Collection\CollectionInterface $products
+ * @var string[]|\Cake\Collection\CollectionInterface $deliveryDrivers
  */
 ?>
 <header class="mb-8 flex items-center justify-between">
@@ -47,8 +46,7 @@
             </div>
             <div>
                 <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Domiciliario</label>
-                <?= $this->Form->control('delivery_driver_id', ['options' => $deliveryDrivers, 'empty' => 'Seleccionar Repartidor...', 'label' => false, 'class' => 'w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-orange-500', 'id' => 'edit-delivery-driver']) ?>
-                <div id="edit-driver-info" class="hidden mt-2 p-3 bg-blue-50 rounded-xl border border-blue-200 text-xs font-bold text-blue-700 flex items-center gap-2"></div>
+                <?= $this->Form->control('delivery_driver_id', ['options' => $deliveryDrivers, 'empty' => true, 'label' => false, 'class' => 'w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-orange-500']) ?>
             </div>
         </div>
         
@@ -97,26 +95,6 @@ function renderEditAdicionales() {
 }
 
 renderEditAdicionales();
-
-var editDriversData = <?= json_encode($deliveryDriversData) ?>;
-var editDriverSelect = document.getElementById('edit-delivery-driver');
-var editDriverInfo = document.getElementById('edit-driver-info');
-
-function updateEditDriverInfo() {
-    var selectedId = editDriverSelect.value;
-    if (selectedId) {
-        var driver = editDriversData.find(function(d) { return d.id == selectedId; });
-        if (driver) {
-            editDriverInfo.innerHTML = '<i class="fa-solid fa-motorcycle"></i> ' + driver.full_name + ' <span class="text-blue-400 font-normal">| Tel: ' + driver.phone + '</span>';
-            editDriverInfo.classList.remove('hidden');
-        }
-    } else {
-        editDriverInfo.classList.add('hidden');
-    }
-}
-
-updateEditDriverInfo();
-editDriverSelect.addEventListener('change', updateEditDriverInfo);
 </script>
 
 <?php if ($isAdmin) : ?>

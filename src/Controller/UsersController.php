@@ -40,10 +40,11 @@ class UsersController extends AppController
             $this->Flash->error(__('No se pudo crear el usuario.'));
         }
         
-        $deliveryDrivers = $this->fetchTable('DeliveryDrivers')->find('list', keyField: 'id', valueField: 'name')->all();
+        $deliveryDrivers = $this->fetchTable('DeliveryDrivers')->find('list', keyField: 'id', valueField: 'full_name')->all();
+        $deliveryDriversData = $this->fetchTable('DeliveryDrivers')->find()->all();
         $clients = $this->fetchTable('Clients')->find('list', keyField: 'id', valueField: 'full_name')->all();
         
-        $this->set(compact('user', 'deliveryDrivers', 'clients'));
+        $this->set(compact('user', 'deliveryDrivers', 'deliveryDriversData', 'clients'));
     }
 
     public function edit($id = null)
@@ -70,10 +71,11 @@ class UsersController extends AppController
             $this->Flash->error(__('No se pudo actualizar el perfil.'));
         }
 
-        $deliveryDrivers = $this->fetchTable('DeliveryDrivers')->find('list', keyField: 'id', valueField: 'name')->all();
+        $deliveryDrivers = $this->fetchTable('DeliveryDrivers')->find('list', keyField: 'id', valueField: 'full_name')->all();
+        $deliveryDriversData = $this->fetchTable('DeliveryDrivers')->find()->all();
         $clients = $this->fetchTable('Clients')->find('list', keyField: 'id', valueField: 'full_name')->all();
 
-        $this->set(compact('user', 'deliveryDrivers', 'clients'));
+        $this->set(compact('user', 'deliveryDrivers', 'deliveryDriversData', 'clients'));
     }
 
     public function login()
