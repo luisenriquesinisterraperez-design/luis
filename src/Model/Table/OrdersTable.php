@@ -131,16 +131,27 @@ class OrdersTable extends Table
         }
 
         if ($needsStockCheck && !in_array($entity->status, ['cancelado', 'pendiente'])) {
-            $stockCheck = $this->_checkStock((int)$entity->product_id, (int)$entity->quantity);
+            try {
+                $stockCheck = $this->_checkStock((int)$entity->product_id, (int)$entity->quantity);
+            } catch (Exception $e) {
+                Log::error('EXCEPCION en _checkStock: ' . $e->getMessage());
+                $entity->setError('product_id', __('Error inesperado al verificar inventario. Venta cancelada.'));
+                $event->stopPropagation();
+
+                return;
+            }
+
             $entity->set('no_recipe_warning', $stockCheck['no_recipe']);
 
             if (!empty($stockCheck['errors'])) {
-                $msg = 'No hay suficiente inventario para realizar la venta:';
+                $msg = [];
                 foreach ($stockCheck['errors'] as $err) {
-                    $msg .= " {$err['nombre']} (necesario: {$err['necesario']}, stock: {$err['stock']})";
-                    $entity->setError('product_id', __("{$err['nombre']}: falta {$err['necesario']} {$err['unidad']}, hay {$err['stock']} {$err['unidad']}"));
+                    $msg[] = "{$err['nombre']}: falta {$err['necesario']} {$err['unidad']}, hay {$err['stock']} {$err['unidad']}";
+                    $entity->setError('stock_' . $err['nombre'], __($msg[count($msg) - 1]));
                 }
-                Log::warning('VENTA BLOQUEADA POR STOCK: ' . $msg);
+                Log::warning('VENTA BLOQUEADA POR STOCK: ' . implode(' | ', $msg));
+                $entity->setError('product_id', __('No hay suficiente inventario: ' . implode('; ', $msg)));
+                $event->stopPropagation();
 
                 return;
             }
@@ -304,16 +315,25 @@ class OrdersTable extends Table
         }
 
         foreach ($recipes as $recipe) {
+            $ingredient = $recipe->ingredient;
+
+            if (!$ingredient) {
+                Log::error("STOCK CHECK: Insumo ID {$recipe->ingredient_id} no encontrado (product_ingredients ID {$recipe->id})");
+
+                continue;
+            }
+
             $needed = (float)$recipe->quantity_required * $quantity;
-            $stock = (float)$recipe->ingredient->stock;
-            $unit = $recipe->ingredient->unit;
+            $stock = (float)$ingredient->stock;
+
+            Log::debug("STOCK CHECK: producto_id={$productId}, insumo={$ingredient->name}, stock={$stock}, needed={$needed}, compare={$stock}<{$needed}=" . ($stock < $needed ? 'TRUE' : 'FALSE'));
 
             if ($stock < $needed) {
                 $result['errors'][] = [
-                    'nombre' => $recipe->ingredient->name,
+                    'nombre' => $ingredient->name,
                     'necesario' => $needed,
                     'stock' => $stock,
-                    'unidad' => $unit,
+                    'unidad' => $ingredient->unit,
                 ];
             }
         }
