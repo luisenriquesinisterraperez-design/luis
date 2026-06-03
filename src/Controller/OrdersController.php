@@ -16,46 +16,51 @@ class OrdersController extends AppController
         $isAdminEmpresa = ($user && $user->role === 'admin_empresa');
         $isAdmin = ($user && ($user->role === 'admin' || $isAdminEmpresa || $isSuperAdmin));
         $isRepartidor = ($user && $user->role === 'repartidor');
+        $isStaff = ($user && $user->role === 'staff');
 
         $startDate = $this->request->getQuery('start_date');
         $endDate = $this->request->getQuery('end_date');
 
-        $query = $this->Orders->find()
-            ->contain(['Products', 'DeliveryDrivers', 'OrderLogs', 'OrderAdicionales'])
-            ->orderBy([
-                'Orders.created' => 'DESC',
-                'Orders.id' => 'DESC',
-            ]);
-
-        if (!$isAdmin) {
-            $query->where(['Orders.payment_method !=' => 'Crédito'])
-                  ->andWhere(['Orders.status !=' => 'cancelado']);
-        }
-
-        if ($startDate) {
-            $query->where(['Orders.created >=' => $startDate . ' 00:00:00']);
-        }
-        if ($endDate) {
-            $query->where(['Orders.created <=' => $endDate . ' 23:59:59']);
-        }
-
-        if ($isRepartidor) {
-            $query->where(['Orders.delivery_driver_id' => $user->delivery_driver_id]);
-            $this->paginate['limit'] = 5;
-
-            $qEarned = $this->Orders->find();
-            $driverEarnings = $qEarned->where(['Orders.delivery_driver_id' => $user->delivery_driver_id, 'Orders.status' => 'entregado'])
-                ->select(['total' => $qEarned->func()->sum('shipping_cost')])
-                ->disableHydration()
-                ->first()['total'] ?? 0;
-
-            $this->set('driverEarnings', (float)$driverEarnings);
-        } elseif (!$isAdmin) {
-            $this->paginate['limit'] = 10;
+        if ($isStaff) {
+            $orders = [];
         } else {
-            $this->paginate['limit'] = 50;
+            $query = $this->Orders->find()
+                ->contain(['Products', 'DeliveryDrivers', 'OrderLogs', 'OrderAdicionales'])
+                ->orderBy([
+                    'Orders.created' => 'DESC',
+                    'Orders.id' => 'DESC',
+                ]);
+
+            if (!$isAdmin) {
+                $query->where(['Orders.payment_method !=' => 'Crédito'])
+                      ->andWhere(['Orders.status !=' => 'cancelado']);
+            }
+
+            if ($startDate) {
+                $query->where(['Orders.created >=' => $startDate . ' 00:00:00']);
+            }
+            if ($endDate) {
+                $query->where(['Orders.created <=' => $endDate . ' 23:59:59']);
+            }
+
+            if ($isRepartidor) {
+                $query->where(['Orders.delivery_driver_id' => $user->delivery_driver_id]);
+                $this->paginate['limit'] = 5;
+
+                $qEarned = $this->Orders->find();
+                $driverEarnings = $qEarned->where(['Orders.delivery_driver_id' => $user->delivery_driver_id, 'Orders.status' => 'entregado'])
+                    ->select(['total' => $qEarned->func()->sum('shipping_cost')])
+                    ->disableHydration()
+                    ->first()['total'] ?? 0;
+
+                $this->set('driverEarnings', (float)$driverEarnings);
+            } elseif (!$isAdmin) {
+                $this->paginate['limit'] = 10;
+            } else {
+                $this->paginate['limit'] = 50;
+            }
+            $orders = $this->paginate($query);
         }
-        $orders = $this->paginate($query);
         $products = $this->Orders->Products->find('list', limit: 200)->all();
 
         $driversTable = $this->fetchTable('DeliveryDrivers');
@@ -87,7 +92,7 @@ class OrdersController extends AppController
             })
             ->toList();
 
-        $this->set(compact('orders', 'products', 'deliveryDrivers', 'repartidoresData', 'clients', 'isAdmin', 'startDate', 'endDate', 'adicionales'));
+        $this->set(compact('orders', 'products', 'deliveryDrivers', 'repartidoresData', 'clients', 'isAdmin', 'isStaff', 'startDate', 'endDate', 'adicionales'));
     }
 
     public function add()
