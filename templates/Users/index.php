@@ -9,7 +9,9 @@
         <h1 class="text-3xl font-black text-slate-800 tracking-tight uppercase">Usuarios del Sistema</h1>
         <p class="text-blue-600 font-bold uppercase text-xs tracking-widest">Control de accesos y roles</p>
     </div>
-    <?= $this->Html->link('<i class="fa-solid fa-user-plus mr-2"></i> Nuevo Usuario', ['action' => 'add'], ['escape' => false, 'class' => 'bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase hover:bg-blue-600 transition-all shadow-lg']) ?>
+    <?php if ($isMainAdmin): ?>
+        <?= $this->Html->link('<i class="fa-solid fa-user-plus mr-2"></i> Nuevo Usuario', ['action' => 'add'], ['escape' => false, 'class' => 'bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase hover:bg-blue-600 transition-all shadow-lg']) ?>
+    <?php endif; ?>
 </header>
 
 <div class="bg-white rounded-3xl border border-slate-100 overflow-x-auto shadow-sm">

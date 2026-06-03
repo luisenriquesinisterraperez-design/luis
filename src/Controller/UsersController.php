@@ -25,13 +25,15 @@ class UsersController extends AppController
         $passedArgs = $this->request->getParam('pass');
         $targetId = $passedArgs[0] ?? null;
 
-        if ($action === 'add' && $currentUser->id !== 1) {
+        $isMainAdmin = ((int)$currentUser->id === 1);
+
+        if ($action === 'add' && !$isMainAdmin) {
             $this->Flash->error(__('Solo el administrador principal puede crear usuarios.'));
             $event->setResult($this->redirect(['action' => 'index']));
             return;
         }
 
-        if (in_array($action, ['edit', 'delete', 'view']) && $targetId == 1 && $currentUser->id !== 1) {
+        if (in_array($action, ['edit', 'delete', 'view']) && $targetId == 1 && !$isMainAdmin) {
             $this->Flash->error(__('Acceso Denegado.'));
             $event->setResult($this->redirect(['action' => 'index']));
             return;
@@ -42,13 +44,14 @@ class UsersController extends AppController
     {
         $identity = $this->request->getAttribute('identity');
         $currentUser = $identity ? $identity->getOriginalData() : null;
+        $isMainAdmin = ($currentUser && (int)$currentUser->id === 1);
 
         $query = $this->Users->find();
-        if (!$currentUser || $currentUser->id !== 1) {
+        if (!$isMainAdmin) {
             $query->where(['Users.id !=' => 1]);
         }
         $users = $this->paginate($query);
-        $this->set(compact('users'));
+        $this->set(compact('users', 'isMainAdmin'));
     }
 
     public function add()
