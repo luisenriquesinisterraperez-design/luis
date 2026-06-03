@@ -734,8 +734,12 @@ select.required-field.field-filled {
                                     <button type="submit" class="bg-orange-500 text-white p-3 rounded-lg hover:bg-orange-600 text-sm" title="Mover todo a Cocina"><i class="fa-solid fa-fire-burner"></i></button>
                                 <?= $this->Form->end() ?>
                             <?php elseif ($mainOrder->status === 'en cocina'): ?>
-                                <?= $this->Form->create(null, ['url' => ['action' => 'updateStatusGroup', $groupId, 'en camino'], 'class' => 'inline']) ?>
-                                    <button type="submit" class="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 text-sm" title="Enviar todo"><i class="fa-solid fa-motorcycle"></i></button>
+                                <?php $nextStatus = $mainOrder->type === 'local' ? 'entregado' : 'en camino'; ?>
+                                <?php $btnTitle = $mainOrder->type === 'local' ? 'Entregar al cliente' : 'Enviar todo'; ?>
+                                <?php $btnIcon = $mainOrder->type === 'local' ? 'fa-solid fa-house-circle-check' : 'fa-solid fa-motorcycle'; ?>
+                                <?php $btnClass = $mainOrder->type === 'local' ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'; ?>
+                                <?= $this->Form->create(null, ['url' => ['action' => 'updateStatusGroup', $groupId, $nextStatus], 'class' => 'inline']) ?>
+                                    <button type="submit" class="<?= $btnClass ?> text-white p-3 rounded-lg text-sm" title="<?= $btnTitle ?>"><i class="<?= $btnIcon ?>"></i></button>
                                 <?= $this->Form->end() ?>
                             <?php elseif ($mainOrder->status === 'en camino'): ?>
                                 <?= $this->Form->create(null, ['url' => ['action' => 'updateStatusGroup', $groupId, 'entregado'], 'class' => 'inline']) ?>
