@@ -12,6 +12,21 @@ use Exception;
  */
 class IngredientsController extends AppController
 {
+    public function beforeFilter(\Cake\Event\EventInterface $event)
+    {
+        parent::beforeFilter($event);
+
+        $identity = $this->request->getAttribute('identity');
+        $user = $identity ? $identity->getOriginalData() : null;
+        $isStaff = ($user && $user->role === 'staff');
+
+        if ($isStaff && in_array($this->request->getParam('action'), ['add', 'edit', 'delete'])) {
+            $this->Flash->error(__('Acceso Denegado: Solo el Administrador puede modificar insumos.'));
+            $event->setResult($this->redirect(['action' => 'index']));
+            return;
+        }
+    }
+
     /**
      * Index method
      *
