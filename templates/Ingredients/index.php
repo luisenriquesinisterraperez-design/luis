@@ -10,10 +10,12 @@
         <p class="text-blue-600 font-bold uppercase text-xs tracking-widest">Gestión de insumos y materia prima</p>
     </div>
     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <?php if ($isAdmin): ?>
         <div class="bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-lg">
             <span class="text-[10px] font-black text-yellow-400 uppercase tracking-widest">Inversión Total</span>
             <p class="text-2xl font-black mt-1">$<?= number_format($totalInversion, 0) ?></p>
         </div>
+        <?php endif; ?>
         <?= $this->Html->link('<i class="fa-solid fa-plus mr-2"></i> Nuevo Insumo', ['action' => 'add'], ['escape' => false, 'class' => 'bg-blue-600 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20 text-center']) ?>
     </div>
 </header>
@@ -23,9 +25,11 @@
         <thead class="bg-slate-900 text-white text-[10px] uppercase font-bold tracking-widest">
             <tr>
                 <th class="p-5">Insumo</th>
+                <?php if ($isAdmin): ?>
                 <th class="p-5 text-center">Costo Unitario</th>
+                <th class="p-5 text-center">Valor Stock</th>
+                <?php endif; ?>
                 <th class="p-5 text-center">Stock Actual</th>
-                <th class="p-5 text-center">Valor Total</th>
                 <th class="p-5 text-right">Acciones</th>
             </tr>
         </thead>
@@ -38,16 +42,18 @@
                     <div class="font-black text-slate-800 uppercase text-sm"><?= h($ingredient->name) ?></div>
                     <div class="text-[10px] text-slate-400 font-bold uppercase"><?= h($ingredient->unit) ?></div>
                 </td>
+                <?php if ($isAdmin): ?>
                 <td class="p-5 text-center font-bold text-blue-600">
                     $<?= number_format($ingredient->cost, 2) ?>
                 </td>
+                <td class="p-5 text-center font-bold text-emerald-600">
+                    $<?= number_format($valorTotal, 0) ?>
+                </td>
+                <?php endif; ?>
                 <td class="p-5 text-center">
                     <span class="px-4 py-2 rounded-xl font-black text-lg <?= $ingredient->stock <= 5 ? 'bg-red-50 text-red-600' : 'bg-slate-50 text-slate-700' ?>">
                         <?= number_format($ingredient->stock, 1) ?>
                     </span>
-                </td>
-                <td class="p-5 text-center font-bold text-emerald-600">
-                    $<?= number_format($valorTotal, 0) ?>
                 </td>
                 <td class="p-5 text-right">
                     <div class="flex justify-end gap-2 mt-1">
@@ -61,6 +67,7 @@
             </tr>
             <?php endforeach; ?>
         </tbody>
+        <?php if ($isAdmin): ?>
         <tfoot class="bg-slate-900 text-white">
             <tr>
                 <td class="p-5 font-black uppercase text-yellow-400 tracking-widest">Total Inversión</td>
@@ -70,6 +77,7 @@
                 <td></td>
             </tr>
         </tfoot>
+        <?php endif; ?>
     </table>
 </div>
 
