@@ -628,7 +628,6 @@ select.required-field.field-filled {
     </header>
 <?php endif; ?>
 
-<?php if (!$isStaff): ?>
 <div class="bg-white rounded-3xl border border-orange-100 overflow-hidden shadow-sm">
     <div class="overflow-x-auto">
         <table class="w-full text-left">
@@ -789,6 +788,7 @@ select.required-field.field-filled {
     </div>
 </div>
 
+<?php if (!$isStaff): ?>
 <ul class="flex items-center justify-center gap-2 list-none p-0 m-0">
     <?= $this->Paginator->prev('<i class="fa-solid fa-chevron-left"></i>', ['escape' => false, 'templates' => ['prevActive' => '<a rel="prev" href="{{url}}" class="bg-white px-4 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all font-bold text-sm text-slate-700 flex items-center justify-center">{{text}}</a>', 'prevDisabled' => '<span class="bg-slate-100 px-4 py-3 rounded-xl border border-slate-200 font-bold text-sm text-slate-300 flex items-center justify-center">{{text}}</span>']]) ?>
     <?= $this->Paginator->numbers(['templates' => ['number' => '<a href="{{url}}" class="bg-white px-4 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all font-bold text-xs text-slate-700 flex items-center justify-center min-w-[2.5rem]">{{text}}</a>', 'current' => '<span class="bg-blue-600 text-white px-4 py-3 rounded-xl font-bold text-xs flex items-center justify-center min-w-[2.5rem]">{{text}}</span>', 'ellipsis' => '<span class="px-2 py-3 text-slate-400 font-bold text-xs">&hellip;</span>']]) ?>

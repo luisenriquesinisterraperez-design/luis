@@ -22,7 +22,14 @@ class OrdersController extends AppController
         $endDate = $this->request->getQuery('end_date');
 
         if ($isStaff) {
-            $orders = [];
+            $orders = $this->Orders->find()
+                ->contain(['Products', 'DeliveryDrivers', 'OrderLogs', 'OrderAdicionales'])
+                ->orderBy([
+                    'Orders.created' => 'DESC',
+                    'Orders.id' => 'DESC',
+                ])
+                ->limit(20)
+                ->all();
         } else {
             $query = $this->Orders->find()
                 ->contain(['Products', 'DeliveryDrivers', 'OrderLogs', 'OrderAdicionales'])
