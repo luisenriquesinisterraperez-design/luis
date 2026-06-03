@@ -301,7 +301,6 @@ $isStaff = ($user && $user->role === 'staff'); // Explicitly check for staff rol
             <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase italic">Pedidos por entregar</p>
         </div>
     </div>
-    <!-- No mostrar gráfico de ventas ni desglose de caja ni stock crítico -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
         <div class="lg:col-span-3 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
             <h3 class="font-black text-slate-900 uppercase text-xs tracking-widest mb-6 border-b pb-4">Resumen de Operaciones</h3>
@@ -323,7 +322,6 @@ $isStaff = ($user && $user->role === 'staff'); // Explicitly check for staff rol
                                 <p class="text-[9px] font-bold text-slate-400"><?= $driver->orders_count ?> pedidos</p>
                             </div>
                         </div>
-                        <p class="text-[10px] font-black text-slate-900">$<?= number_format($driver->total, 0) ?></p>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -362,41 +360,6 @@ $isStaff = ($user && $user->role === 'staff'); // Explicitly check for staff rol
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Script for salesChart -->
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const ctx = document.getElementById('salesChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: <?= json_encode(array_column($salesByDay, 'date')) ?>,
-                datasets: [{
-                    label: 'Ventas ($)',
-                    data: <?= json_encode(array_column($salesByDay, 'total')) ?>,
-                    borderColor: '#2563eb',
-                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                    borderWidth: 4,
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#ffffff',
-                    pointBorderColor: '#2563eb',
-                    pointBorderWidth: 2,
-                    pointRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 9, weight: 'bold' } } },
-                    x: { grid: { display: false }, ticks: { font: { size: 9, weight: 'bold' } } }
-                }
-            }
-        });
-    });
-    </script>
 
 <?php elseif ($isCliente): ?>
     <!-- DASHBOARD PARA CLIENTES -->

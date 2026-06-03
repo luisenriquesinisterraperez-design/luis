@@ -66,7 +66,7 @@ class OrdersController extends AppController
         $driversTable = $this->fetchTable('DeliveryDrivers');
         $deliveryDrivers = $driversTable->find('list', keyField: 'id', valueField: 'full_name', limit: 200)->all();
 
-        $driversMap = $driversTable->find()->all()->indexBy('id');
+        $driversMap = $driversTable->find()->all()->indexBy('id')->toArray();
         $repartidoresData = $this->fetchTable('Users')->find()
             ->contain(['Clients'])
             ->where(['Users.role' => 'repartidor', 'Users.delivery_driver_id IS NOT NULL'])
