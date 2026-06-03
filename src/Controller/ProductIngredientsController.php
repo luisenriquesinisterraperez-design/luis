@@ -7,6 +7,21 @@ use Cake\Log\Log;
 
 class ProductIngredientsController extends AppController
 {
+    public function beforeFilter(\Cake\Event\EventInterface $event)
+    {
+        parent::beforeFilter($event);
+
+        $identity = $this->request->getAttribute('identity');
+        $user = $identity ? $identity->getOriginalData() : null;
+        $isStaff = ($user && $user->role === 'staff');
+
+        if ($isStaff && in_array($this->request->getParam('action'), ['recipe', 'delete'])) {
+            $this->Flash->error(__('Acceso Denegado: Solo el Administrador puede gestionar recetas.'));
+            $event->setResult($this->redirect(['controller' => 'Products', 'action' => 'index']));
+            return;
+        }
+    }
+
     public function recipe($productId = null)
     {
         if (!$productId) {
