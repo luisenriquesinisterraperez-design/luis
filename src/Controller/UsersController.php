@@ -14,11 +14,39 @@ class UsersController extends AppController
     {
         parent::beforeFilter($event);
         $this->Authentication->allowUnauthenticated(['login', 'logout']);
+
+        $identity = $this->request->getAttribute('identity');
+        $currentUser = $identity ? $identity->getOriginalData() : null;
+        if (!$currentUser) {
+            return;
+        }
+
+        $action = $this->request->getParam('action');
+        $passedArgs = $this->request->getParam('pass');
+        $targetId = $passedArgs[0] ?? null;
+
+        if ($action === 'add' && $currentUser->id !== 1) {
+            $this->Flash->error(__('Solo el administrador principal puede crear usuarios.'));
+            $event->setResult($this->redirect(['action' => 'index']));
+            return;
+        }
+
+        if (in_array($action, ['edit', 'delete', 'view']) && $targetId == 1 && $currentUser->id !== 1) {
+            $this->Flash->error(__('Acceso Denegado.'));
+            $event->setResult($this->redirect(['action' => 'index']));
+            return;
+        }
     }
 
     public function index()
     {
+        $identity = $this->request->getAttribute('identity');
+        $currentUser = $identity ? $identity->getOriginalData() : null;
+
         $query = $this->Users->find();
+        if (!$currentUser || $currentUser->id !== 1) {
+            $query->where(['Users.id !=' => 1]);
+        }
         $users = $this->paginate($query);
         $this->set(compact('users'));
     }
